@@ -764,7 +764,12 @@ export default class TagFolderPlugin extends Plugin {
 			if (w.every((e) => e)) continue;
 
 			allTags = allTags.filter(
-				(tag) => !ignoreTags.contains(tag.toLowerCase())
+				(tag) => !ignoreTags.some(
+					(ignore) => ignore !== "" && (
+						tag.toLowerCase() === ignore ||
+						tag.toLowerCase().startsWith(ignore + "/")
+					)
+				)
 			);
 
 			// if (this.settings.reduceNestedParent) {
