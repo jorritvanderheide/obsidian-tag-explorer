@@ -29,7 +29,6 @@
         pluginInstance,
         selectedTags,
         tagFolderSetting,
-        tagInfo,
         v2expandedTags,
     } from "./store";
     import { collectTreeChildren, performSortExactFirst } from "./v2codebehind";
@@ -94,7 +93,6 @@
         !_setting.expandLimit ? 0 : _setting.expandLimit,
     );
 
-    const _tagInfo = $derived($tagInfo);
     // To Highlight active things.
     const _currentActiveFilePath = $derived($currentFile);
 
@@ -583,7 +581,7 @@
 
     $effect(() => {
         const key = trailKey + (isRoot ? "-r" : "-x") + viewContextID;
-        const sortFunc = selectCompareMethodTags(_setting, _tagInfo);
+        const sortFunc = selectCompareMethodTags(_setting);
         const param = {
             key,
             expandLimit,
@@ -594,7 +592,6 @@
             isMainTree,
             isSuppressibleLevel,
             previousTrail,
-            _tagInfo,
             _items,
             isRoot,
             isFolderVisible,
@@ -636,8 +633,8 @@
                 onclick={toggleFolder}
             >
                 {#if isFolderVisible}
-                    {#if _tagInfo[tagName]?.mark}
-                        <div use:folderMarkAction={_tagInfo[tagName].mark} class="tagfolder-folder-mark"></div>
+                    {#if _setting.tagIcons?.[tagName]}
+                        <div use:folderMarkAction={_setting.tagIcons![tagName]} class="tagfolder-folder-mark"></div>
                     {:else if collapsed}
                         {@html folderIcon}
                     {:else}

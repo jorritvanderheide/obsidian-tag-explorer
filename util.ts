@@ -1,9 +1,6 @@
-import { tagInfo } from "store";
 import {
 	tagDispDict,
 	type TagFolderSettings,
-	type TagInfo,
-	type TagInfoDict,
 	type ViewItem,
 	type FileCache
 } from "types";
@@ -49,23 +46,9 @@ export function isSpecialTag(tagSrc: string) {
 	return tag == "_untagged" || tag in tagDispDict;
 }
 
-let tagDispAlternativeDict: { [key: string]: string } = {};
-tagInfo.subscribe(tagInfo => {
-	tagDispAlternativeDict = { ...tagDispDict };
-	if (tagInfo == null) {
-		return;
-	}
-	const items = Object.entries(tagInfo);
-	for (const [key, info] of items) {
-		if (info?.alt) {
-			tagDispAlternativeDict[key] = info.alt;
-		}
-	}
-});
-
 export function renderSpecialTag(tagSrc: string) {
 	const tag = trimSlash(tagSrc);
-	return tag in tagDispAlternativeDict ? tagDispAlternativeDict[tag] : tagSrc;
+	return tag in tagDispDict ? tagDispDict[tag] : tagSrc;
 }
 
 
@@ -131,19 +114,6 @@ export function compare(x: string, y: string) {
 }
 
 
-export function getTagName(tagName: string, subtreePrefix: string, tagInfo: TagInfoDict | undefined, invert: number) {
-	if (tagInfo == undefined) return tagName;
-	const prefix = invert == -1 ? `\uffff` : `\u0001`;
-	const unpinned = invert == 1 ? `\uffff` : `\u0001`;
-
-	if (tagName in tagInfo && tagInfo[tagName]) {
-		if ("key" in tagInfo[tagName]) {
-			return `${prefix}_${subtreePrefix}_-${tagInfo[tagName].key}__${tagName}`;
-		}
-	}
-	return `${prefix}_${subtreePrefix}_${unpinned}_${tagName}`
-}
-
 function lc(str: string) {
 	return str.toLowerCase();
 }
@@ -183,22 +153,6 @@ export function removeIntermediatePathOld(paths: string[]) {
 	return out.filter(e => removeList.indexOf(e) == -1)
 }
 
-export function getTagMark(tagInfo: TagInfo | undefined) {
-	if (!tagInfo) return "";
-	if ("key" in tagInfo) {
-		if ("mark" in tagInfo && tagInfo.mark != "") {
-			return tagInfo.mark;
-		} else {
-			return "📌";
-		}
-	} else {
-		if ("mark" in tagInfo && tagInfo.mark != "") {
-			return tagInfo.mark;
-		} else {
-			return "";
-		}
-	}
-}
 
 export function escapeStringToHTML(str: string) {
 	if (!str) return "";
@@ -225,18 +179,15 @@ export const V2FI_IDX_CHILDREN = 3;
 /**
  * Select compare methods for tags from configurations and tag information.
  * @param settings 
- * @param tagInfo 
  * @returns 
  */
-export function selectCompareMethodTags(settings: TagFolderSettings, tagInfo: TagInfoDict) {
-	const _tagInfo = tagInfo;
+export function selectCompareMethodTags(settings: TagFolderSettings) {
 	const invert = settings.sortTypeTag.contains("_DESC") ? -1 : 1;
 	const pinnedFolders = settings.pinnedFolders ?? [];
 	const subTreeChar: Record<typeof invert, string> = {
 		[-1]: `\u{10ffff}`,
 		[1]: `_`
-	}
-		;
+	};
 	// Pinned folders always sort to top, regardless of sort direction.
 	const pinnedFirst = (aName: string, bName: string): number | null => {
 		const aPinned = pinnedFolders.contains(aName);
@@ -253,7 +204,7 @@ export function selectCompareMethodTags(settings: TagFolderSettings, tagInfo: Ta
 		if (pinned !== null) return pinned;
 		const aPrefix = isASubTree ? subTreeChar[invert] : "";
 		const bPrefix = isBSubTree ? subTreeChar[invert] : "";
-		return compare(getTagName(aName, aPrefix, settings.useTagInfo ? _tagInfo : undefined, invert), getTagName(bName, bPrefix, settings.useTagInfo ? _tagInfo : undefined, invert)) * invert;
+		return compare(aPrefix + aName, bPrefix + bName) * invert;
 	}
 	switch (settings.sortTypeTag) {
 		case "ITEMS_ASC":
@@ -263,8 +214,8 @@ export function selectCompareMethodTags(settings: TagFolderSettings, tagInfo: Ta
 				const bName = b[V2FI_IDX_TAGNAME];
 				const pinned = pinnedFirst(aName, bName);
 				if (pinned !== null) return pinned;
-				const aCount = a[V2FI_IDX_CHILDREN].length - ((settings.useTagInfo && (aName in _tagInfo && "key" in _tagInfo[aName])) ? 100000 * invert : 0);
-				const bCount = b[V2FI_IDX_CHILDREN].length - ((settings.useTagInfo && (bName in _tagInfo && "key" in _tagInfo[bName])) ? 100000 * invert : 0);
+				const aCount = a[V2FI_IDX_CHILDREN].length;
+				const bCount = b[V2FI_IDX_CHILDREN].length;
 				if (aCount == bCount) return sortByName(a, b);
 				return (aCount - bCount) * invert;
 			}
@@ -365,7 +316,7 @@ export function pathMatch(haystackLC: string, needleLC: string) {
 	return false;
 }
 
-export function parseTagName(thisName: string, _tagInfo: TagInfoDict): [string, string[]] {
+export function parseTagName(thisName: string): [string, string[]] {
 	let tagNameDisp = [""];
 	const names = thisName.split("/").filter((e) => e.trim() != "");
 	let inSubTree = false;

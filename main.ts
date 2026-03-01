@@ -26,14 +26,13 @@ import {
 	OrderKeyTag,
 	type TagFolderListState,
 	type TagFolderSettings,
-	type TagInfoDict,
 	VIEW_TYPE_TAGFOLDER,
 	VIEW_TYPE_TAGFOLDER_LIST,
 	type ViewItem,
 	type FileCache,
 	enumShowListIn
 } from "types";
-import { allViewItems, appliedFiles, currentFile, maxDepth, pluginInstance, searchString, selectedTags, tagFolderSetting, tagInfo } from "store";
+import { allViewItems, appliedFiles, currentFile, maxDepth, pluginInstance, searchString, selectedTags, tagFolderSetting } from "store";
 import {
 	compare,
 	doEvents,
@@ -201,7 +200,6 @@ export default class TagFolderPlugin extends Plugin {
 	async onload() {
 		await this.loadSettings();
 		this.hoverPreview = this.hoverPreview.bind(this);
-		this.modifyFile = this.modifyFile.bind(this);
 		this.setSearchString = this.setSearchString.bind(this);
 		// Make loadFileInfo debounced .
 		this.loadFileInfo = debounce(
@@ -224,7 +222,6 @@ export default class TagFolderPlugin extends Plugin {
 				await this.initView();
 				await this.activateView();
 			}
-			await this.loadTagInfo();
 		});
 		this.addCommand({
 			id: "tagfolder-open",
@@ -259,8 +256,6 @@ export default class TagFolderPlugin extends Plugin {
 		this.refreshTree = this.refreshTree.bind(this);
 		this.registerEvent(this.app.vault.on("rename", this.refreshTree));
 		this.registerEvent(this.app.vault.on("delete", this.refreshTree));
-		this.registerEvent(this.app.vault.on("modify", this.modifyFile));
-
 		this.registerEvent(
 			this.app.workspace.on("file-open", this.watchWorkspaceOpen)
 		);
@@ -599,17 +594,8 @@ export default class TagFolderPlugin extends Plugin {
 				continue;
 			}
 			await doEvents();
-			const tagRedirectList = {} as { [key: string]: string };
-			if (this.settings.useTagInfo && this.tagInfo) {
-				for (const [key, taginfo] of Object.entries(this.tagInfo)) {
-					if (taginfo?.redirect) {
-						tagRedirectList[key] = taginfo.redirect;
-					}
-				}
-			}
-
 			const allTagsDocs = unique(fileCache.tags);
-			let allTags = unique(allTagsDocs.map((e) => e.substring(1)).map(e => e in tagRedirectList ? tagRedirectList[e] : e));
+			let allTags = unique(allTagsDocs.map((e) => e.substring(1)));
 			if (allTags.length == 0) {
 				allTags = ["_untagged"];
 			}
@@ -814,95 +800,6 @@ export default class TagFolderPlugin extends Plugin {
 			);
 		}
 	}
-	tagInfo: TagInfoDict = {};
-	tagInfoFrontMatterBuffer: Record<string, object> = {};
-	skipOnce = false;
-	tagInfoBody = "";
-
-	async modifyFile(file: TAbstractFile) {
-		if (!this.settings.useTagInfo) return;
-		if (this.skipOnce) {
-			this.skipOnce = false;
-			return;
-		}
-		if (file.name == this.getTagInfoFilename()) {
-			await this.loadTagInfo();
-		}
-	}
-
-	getTagInfoFilename() {
-		return normalizePath(this.settings.tagInfo);
-	}
-
-	getTagInfoFile() {
-		const file = this.app.vault.getAbstractFileByPath(this.getTagInfoFilename());
-		if (file instanceof TFile) {
-			return file;
-		}
-		return null;
-	}
-
-	applyTagInfo() {
-		if (this.tagInfo == null) return;
-		tagInfo.set(this.tagInfo);
-	}
-
-	async loadTagInfo() {
-		if (this.tagInfo == null) this.tagInfo = {};
-		const file = this.getTagInfoFile();
-		if (file == null) return;
-		const data = await this.app.vault.read(file);
-		try {
-			const bodyStartIndex = data.indexOf("\n---");
-			if (!data.startsWith("---") || bodyStartIndex === -1) {
-				return;
-			}
-			const yaml = data.substring(3, bodyStartIndex);
-			const yamlData = parseYaml(yaml) as TagInfoDict;
-
-			const keys = Object.keys(yamlData);
-			this.tagInfoBody = data.substring(bodyStartIndex + 5);
-			this.tagInfoFrontMatterBuffer = yamlData;
-
-			const newTagInfo = {} as TagInfoDict;
-			for (const key of keys) {
-				const w = yamlData[key];
-				if (!w) continue;
-				if (typeof (w) != "object") continue;
-				// snip unexpected keys
-				// but we can use xkey, xmark or something like that for preserving entries.
-				const keys = ["key", "mark", "alt", "redirect"];
-				const entries = Object.entries(w).filter(([key]) => keys.some(e => key.contains(e)));
-				if (entries.length == 0) continue;
-				newTagInfo[key] = Object.fromEntries(entries);
-			}
-			this.tagInfo = newTagInfo;
-			this.applyTagInfo();
-		} catch (ex) {
-			console.log(ex);
-			// NO OP.
-		}
-
-	}
-
-	async saveTagInfo() {
-		if (this.tagInfo == null) return;
-		let file = this.getTagInfoFile();
-		if (file == null) {
-			file = await this.app.vault.create(this.getTagInfoFilename(), "");
-		}
-		await this.app.fileManager.processFrontMatter(file, matter => {
-			const ti = Object.entries(this.tagInfo);
-			for (const [key, value] of ti) {
-				if (value === undefined) {
-					delete matter[key];
-				} else {
-					matter[key] = value;
-				}
-			}
-		});
-	}
-
 	async refreshAllViewItems() {
 		this.parsedFileCache.clear();
 		const items = await this.getItemsList();
@@ -917,7 +814,6 @@ export default class TagFolderPlugin extends Plugin {
 			DEFAULT_SETTINGS,
 			await this.loadData()
 		);
-		await this.loadTagInfo();
 		tagFolderSetting.set({ ...this.settings });
 		this.compareItems = getCompareMethodItems(this.settings);
 		// this.compareTags = getCompareMethodTags(this.settings);
@@ -928,7 +824,6 @@ export default class TagFolderPlugin extends Plugin {
 		this.compareItems = getCompareMethodItems(this.settings);
 		void this.refreshAllViewItems(); // (Do not wait for it)
 		await this.saveData(this.settings);
-		await this.saveTagInfo();
 		// this.compareTags = getCompareMethodTags(this.settings);
 	}
 
@@ -1052,37 +947,6 @@ class TagFolderSettingTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					})
 			);
-		new Setting(containerEl)
-			.setName("Enable folder pinning")
-			.setDesc(
-				"Persist pin state for tag folders across sessions. Pin data is saved to the file specified below."
-			)
-			.addToggle((toggle) => {
-				toggle
-					.setValue(this.plugin.settings.useTagInfo)
-					.onChange(async (value) => {
-						this.plugin.settings.useTagInfo = value;
-						if (this.plugin.settings.useTagInfo) {
-							await this.plugin.loadTagInfo();
-						}
-						await this.plugin.saveSettings();
-						pi.setDisabled(!value);
-					});
-			});
-		const pi = new Setting(containerEl)
-			.setName("Pin data file")
-			.setDisabled(!this.plugin.settings.useTagInfo)
-			.addText((text) => {
-				text
-					.setValue(this.plugin.settings.tagInfo)
-					.onChange(async (value) => {
-						this.plugin.settings.tagInfo = value;
-						if (this.plugin.settings.useTagInfo) {
-							await this.plugin.loadTagInfo();
-						}
-						await this.plugin.saveSettings();
-					});
-			});
 		containerEl.createEl("h2", { text: "Files" });
 		new Setting(containerEl)
 			.setName("File title format")

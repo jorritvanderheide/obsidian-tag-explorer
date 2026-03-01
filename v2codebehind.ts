@@ -1,4 +1,4 @@
-import type { TagFolderSettings, TagInfoDict, ViewItem } from "./types";
+import type { TagFolderSettings, ViewItem } from "./types";
 import {
 	V2FI_IDX_CHILDREN,
 	type V2FolderItem,
@@ -42,7 +42,6 @@ let delayIdx = 0;
 export async function collectChildren(
 	previousTrail: string,
 	tags: string[],
-	_tagInfo: TagInfoDict,
 	_items: ViewItem[]
 ) {
 	const previousTrailLC = previousTrail.toLowerCase();
@@ -69,7 +68,7 @@ export async function collectChildren(
 				items.push(...tempItems);
 			}
 		}
-		children.push([tag, ...parseTagName(tag, _tagInfo), [...new Set(items)]]);
+		children.push([tag, ...parseTagName(tag), [...new Set(items)]]);
 		// Prevent UI freezing.
 		delayIdx++;
 		delayIdx %= 4;
@@ -88,7 +87,6 @@ export async function collectTreeChildren({
 	isMainTree,
 	isSuppressibleLevel,
 	previousTrail,
-	_tagInfo,
 	_items,
 	isRoot,
 	sortFunc,
@@ -102,7 +100,6 @@ export async function collectTreeChildren({
 	isMainTree: boolean;
 	isSuppressibleLevel: boolean;
 	previousTrail: string;
-	_tagInfo: TagInfoDict;
 	_items: ViewItem[];
 	isRoot: boolean;
 	sortFunc: (a: V2FolderItem, b: V2FolderItem) => number;
@@ -124,7 +121,7 @@ export async function collectTreeChildren({
 		suppressLevels = getExtraTags(tags, trailLower, _setting.reduceNestedParent);
 	} else {
 		let wChildren = [] as V2FolderItem[];
-		wChildren = await collectChildren(previousTrail, tags, _tagInfo, _items);
+		wChildren = await collectChildren(previousTrail, tags, _items);
 
 		// -- Check redundant combination if configured.
 		if (_setting.mergeRedundantCombination) {

@@ -15,18 +15,6 @@ import { ancestorToLongestTag, ancestorToTags, isSpecialTag, renderSpecialTag, j
 import { askString } from "dialog";
 import { IconPickerModal } from "./IconPickerModal";
 
-function toggleObjectProp(obj: { [key: string]: any }, propName: string, value: string | false) {
-	if (value === false) {
-		const newTagInfoEntries = Object.entries(obj || {}).filter(([key]) => key != propName);
-		if (newTagInfoEntries.length == 0) {
-			return {};
-		} else {
-			return Object.fromEntries(newTagInfoEntries);
-		}
-	} else {
-		return { ...(obj ?? {}), [propName]: value };
-	}
-}
 export abstract class TagFolderViewBase extends ItemView {
 	component!: ReturnType<typeof mount>;
 	plugin!: TagFolderPlugin;
@@ -175,7 +163,6 @@ export abstract class TagFolderViewBase extends ItemView {
 				);
 			}
 			if (targetTag) {
-				if (this.plugin.settings.useTagInfo) {
 				const pinnedTag = targetTag;
 				const isPinned = this.plugin.settings.pinnedFolders.contains(pinnedTag);
 				if (isPinned) {
@@ -197,17 +184,15 @@ export abstract class TagFolderViewBase extends ItemView {
 							})
 					);
 				}
-				}
 				const iconTag = targetTag;
-				const currentMark = this.plugin.tagInfo?.[iconTag]?.mark ?? "";
+				const currentMark = this.plugin.settings.tagIcons?.[iconTag] ?? "";
 				if (currentMark) {
 					menu.addItem((item) =>
 						item.setTitle("Remove folder icon")
 							.setIcon("lucide-image-off")
 							.onClick(async () => {
-								this.plugin.tagInfo[iconTag] = toggleObjectProp(this.plugin.tagInfo[iconTag] ?? {}, "mark", false);
-								this.plugin.applyTagInfo();
-								await this.plugin.saveTagInfo();
+								delete this.plugin.settings.tagIcons[iconTag];
+								await this.plugin.saveSettings();
 							})
 					);
 				} else {
@@ -216,9 +201,8 @@ export abstract class TagFolderViewBase extends ItemView {
 							.setIcon("lucide-image-plus")
 							.onClick(() => {
 								new IconPickerModal(this.app, async (iconId) => {
-									this.plugin.tagInfo[iconTag] = toggleObjectProp(this.plugin.tagInfo[iconTag] ?? {}, "mark", iconId);
-									this.plugin.applyTagInfo();
-									await this.plugin.saveTagInfo();
+									this.plugin.settings.tagIcons = { ...this.plugin.settings.tagIcons, [iconTag]: iconId };
+									await this.plugin.saveSettings();
 								}).open();
 							})
 					);

@@ -14,17 +14,6 @@ export interface ViewItem {
 	ctime: number;
 	filename: string;
 }
-export interface TagInfoDict {
-	[key: string]: TagInfo;
-}
-export interface TagInfo {
-	key?: string;
-	mark?: string;
-	alt?: string;
-	redirect?: string;
-}
-
-
 export const enumShowListIn = {
 	"": "Sidebar",
 	"CURRENT_PANE": "Current pane",
@@ -58,8 +47,6 @@ export interface TagFolderSettings {
 	useTitle: boolean;
 	reduceNestedParent: boolean;
 	frontmatterKey: string;
-	useTagInfo: boolean;
-	tagInfo: string;
 	mergeRedundantCombination: boolean;
 	namespacedTagGuard: boolean;
 	useFrontmatterTagsForNewNotes: boolean,
@@ -70,6 +57,7 @@ export interface TagFolderSettings {
 	expandUntaggedToRoot: boolean;
 	disableDragging: boolean;
 	pinnedFolders: string[];
+	tagIcons: Record<string, string>;
 	showListIn: keyof typeof enumShowListIn;
 }
 
@@ -90,8 +78,6 @@ export const DEFAULT_SETTINGS: TagFolderSettings = {
 	useTitle: true,
 	reduceNestedParent: true,
 	frontmatterKey: "title",
-	useTagInfo: false,
-	tagInfo: ".pininfo.md",
 	mergeRedundantCombination: false,
 	namespacedTagGuard: true,
 	useFrontmatterTagsForNewNotes: false,
@@ -102,6 +88,7 @@ export const DEFAULT_SETTINGS: TagFolderSettings = {
 	expandUntaggedToRoot: false,
 	disableDragging: false,
 	pinnedFolders: [],
+	tagIcons: {},
 	showListIn: "",
 };
 
