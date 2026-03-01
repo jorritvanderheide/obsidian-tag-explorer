@@ -1,4 +1,4 @@
-## Nested Tag Folder
+## Tag Folder Plus
 
 > **This is a fork of [TagFolder](https://github.com/vrtmrz/obsidian-tagfolder) by vorotamoroz.**
 
@@ -12,15 +12,11 @@ Use nested tags as a replacement for Obsidian's file explorer. Each tag namespac
 
 ### How to use
 
-Install this plugin, press `Ctrl+p`, and choose "Show Tag Folder".
-
-### Behavior
-
-This plugin turns your nested tags into a browsable folder tree — a drop-in replacement for the file explorer.
+Install this plugin, press `Ctrl+p`, and choose "Show Tag Folder Plus".
 
 ### How it works
 
-Each top-level tag namespace becomes an independent folder tree. A note tagged with multiple namespaces appears in **all of them simultaneously** — the same file in multiple places at once.
+Each top-level tag namespace becomes an independent folder tree. A note tagged with multiple namespaces appears in **all of them simultaneously**.
 
 ```
 Meeting notes : #area/work    #status/active
@@ -48,7 +44,7 @@ status/
     Book summary
 ```
 
-#### Search tags
+#### Search
 
 Filter the tree by typing in the search box. Filters are matched against tags.
 
@@ -61,235 +57,92 @@ Filter the tree by typing in the search box. Filters are matched against tags.
 | `A B` | AND — tag must match both A and B |
 | `A \| B` | OR — show notes matching A or notes matching B |
 
-For namespace filtering, prefer `#namespace` over a plain word — it matches the whole namespace without accidentally catching unrelated tags.
-
-Examples:
-
-```
-#source
-```
-Show only notes in the `source/*` namespace.
-
-```
-#source/book -#status/done
-```
-Show notes under `source/book` that are not yet done.
-
-```
-#area | #source
-```
-Show notes from either the `area` or `source` namespace.
-
 ### Settings
 
 #### Behavior
 
 ##### Always Open
 
-Place TagFolder on the left pane and activate it at every Obsidian launch.
-
-##### Use pinning
-
-We can pin the tag if we enable this option.  
-When this feature is enabled, the pin information is saved in the file set in the next configuration.
-Pinned tags are sorted according to `key` in the frontmatter of `taginfo.md`.
-
-##### Pin information file
-
-We can change the name of the file in which pin information is saved.
-This can be configured also from the context-menu.
-
-| Item     | Meaning of the value                                                                              |
-| -------- | ------------------------------------------------------------------------------------------------- |
-| key      | If exists, the tag is pinned.                                                                     |
-| mark     | The label which is shown instead of `📌`.                                                         |
-| alt      | The tag will be shown as this. But they will not be merged into the same one. No `#` is required. |
-| redirect | The tag will be redirected to the configured one and will be merged. No `#` is required.          |
+Place Tag Folder Plus on the left pane and activate it at every Obsidian launch.
 
 #### Files
 
 ##### Display Method
 
-You can configure how the entry shows.
+Configure how file entries are displayed.
 
 ##### Order method
 
-You can order items by:
-
-- Displaying name
-- Filename
-- Modified time
-- Fullpath of the file
+Order items by displaying name, filename, modified time, or full path.
 
 ##### Use title
 
-When you enable this option, the value in the frontmatter or first level one heading will be shown instead of `NAME`.
+Show the note's title from frontmatter or the first H1 heading instead of the filename.
 
 ##### Frontmatter path
 
-Dotted path to retrieve title from frontmatter.
+Dotted path to retrieve the title from frontmatter.
 
 #### Tags
 
 ##### Order method
 
-You can order tags by:
+Order tags by name or count of items.
 
-- Filename
-- Count of items
+##### Namespace-scoped sub-folders
 
-##### Store tags in frontmatter for new notes
-
-This setting changes how tags are stored in new notes created by TagFolder. When disabled, tags are stored as #hashtags at the top of new notes. When enabled, tags are stored in the frontmatter and displayed in the note's Properties.
+When inside a tag folder, only show sub-folders from the same root namespace. For example, inside `source/`, folders from `area/` or `project/` will not appear. Can also be toggled from the toolbar filter button.
 
 #### Actions
 
 ##### Search tags inside TagFolder when clicking tags
 
-We can search tags inside TagFolder when clicking tags instead of opening the default search pane.
-With control and shift keys, we can remove the tag from the search condition or add an exclusion of it to that.
+Search inside Tag Folder Plus when clicking a tag, instead of opening Obsidian's default search. Ctrl/Shift-click adds or removes exclusions.
 
 ##### List files in a separated pane
 
-When enabled, files will be shown in a separated pane.
+When enabled, files are shown in a separate pane.
 
 #### Arrangements
 
 ##### Hide Items
 
-Configure hiding items.
+Configure when files are hidden from intermediate folders:
 
-- Hide nothing
-- Only intermediates of nested tags
-- All intermediates
-
-If you have these items:
-
-```
-2021-11-01 : #daily/2021/11 #status/summarized
-2021-11-02 : #daily/2021/11 #status/summarized
-2021-11-03 : #daily/2021/11 #status/jot
-2021-12-01 : #daily/2021/12 #status/jot
-```
-
-This setting affects as like below.
-
-- Hide nothing
-
-```
-daily
-    → 2021
-        → 11
-            status
-                → jot
-                    2021-11-03
-                → summarized
-                    2021-11-01
-                    2021-11-02
-                2021-11-01
-                2021-11-02
-                2021-11-03
-            2021-11-01
-            2021-11-02
-            2021-11-03
-        2021-11-01
-        2021-11-02
-        2021-11-03
-        2021-12-01
-        → 12
-            :
-    2021-11-01
-    2021-11-02
-    2021-11-03
-    2021-12-01
-```
-
-- Only intermediates of nested tags
-  Hide only intermediates of nested tags, so show items only on the last or break of the nested tags.
-
-```
-daily
-    → 2021
-        → 11
-            status
-                → jot
-                    2021-11-03
-                → summarized
-                    2021-11-01
-                    2021-11-02
-            2021-11-01
-            2021-11-02
-            2021-11-03
-        → 12
-            :
-```
-
-- All intermediates
-  Hide all intermediates, so show items only deepest.
-
-```
-daily
-    → 2021
-        → 11
-            status
-                → jot
-                    2021-11-03
-                → summarized
-                    2021-11-01
-                    2021-11-02
-        → 12
-            :
-```
+- **Hide nothing** — files appear at every level.
+- **Only intermediates of nested tags** — files are hidden inside nested tag levels.
+- **All intermediates** — files only appear at the deepest level.
 
 ##### Merge redundant combinations
 
-When this feature is enabled, a/b and b/a are merged into a/b if there are no intermediates.
+When enabled, `a/b` and `b/a` are merged into a single folder if there are no intermediates.
 
 ##### Do not simplify empty folders
 
-Keep empty folders, even if they can be simplified.
+Keep empty folders rather than collapsing them.
 
 ##### Reduce duplicated parents in nested tags
 
-If we have the doc (e.g., `example note`) with nested tags which have the same parents, like `#topic/calculus`, `#topic/electromagnetics`:
-
-- Disabled
-
-```
-topic
-     - > calculus
-         topic
-               - > electromagnetics
-                   example note
-         example note
-```
-
-- Enabled
-
-```
-topic
-     - > calculus
-          - > electromagnetics
-              example note
-         example note
-```
+When a note has multiple nested tags sharing a parent (e.g. `#topic/calculus` and `#topic/electromagnetics`), collapse the repeated parent so `topic` appears only once.
 
 #### Filters
 
 ##### Target Folders
 
-If we set this, the plugin will only target files in it.
+Only index files in the specified folders.
 
 ##### Ignore Folders
 
-Ignore documents in specific folders.
+Exclude documents in specific folders.
 
-##### Ignore note Tag
+##### Ignore note tag
 
-If the note has the tag that is set in here, the note would be treated as there was not.
+If a note has any of these tags, it is excluded entirely.
 
-##### Ignore Tag
+##### Ignore tag
 
-Tags that were set here would be treated as there were not.
+Tags listed here are invisible — treated as if they don't exist.
 
 ##### Archive tags
+
+Tags treated as archive namespaces; their contents are hidden from the main tree unless you navigate into the archive folder directly.
