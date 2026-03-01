@@ -53,13 +53,8 @@ export class TagFolderList extends TagFolderViewBase {
 
 		this.showMenu = this.showMenu.bind(this);
 		this.showOrder = this.showOrder.bind(this);
-		this.newNote = this.newNote.bind(this);
 		this.showLevelSelect = this.showLevelSelect.bind(this);
 		this.switchView = this.switchView.bind(this);
-	}
-
-	async newNote(evt: MouseEvent) {
-		await this.plugin.createNewNote(this.state.tags);
 	}
 
 	getViewType() {
@@ -81,7 +76,6 @@ export class TagFolderList extends TagFolderViewBase {
 				showMenu: this.showMenu,
 				showLevelSelect: this.showLevelSelect,
 				showOrder: this.showOrder,
-				newNote: this.newNote,
 				openScrollView: this.plugin.openScrollView,
 				isViewSwitchable: this.plugin.settings.useMultiPaneList,
 				switchView: this.switchView,

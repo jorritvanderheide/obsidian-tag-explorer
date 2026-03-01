@@ -34,7 +34,6 @@
 		) => void;
 		showLevelSelect: (evt: MouseEvent) => void;
 		showOrder: (evt: MouseEvent) => void;
-		newNote: (evt: MouseEvent) => void;
 		openScrollView: (
 			leaf: undefined,
 			title: string,
@@ -56,7 +55,6 @@
 		showMenu,
 		showLevelSelect,
 		showOrder,
-		newNote,
 		openScrollView,
 		isViewSwitchable,
 		switchView,
@@ -108,7 +106,6 @@
 		}
 	}
 	let iconDivEl = $state<HTMLDivElement>();
-	let newNoteIcon = $state("");
 	let folderIcon = $state("");
 	let folderOpenIcon = $state("");
 	let fileIcon = $state("");
@@ -184,8 +181,6 @@
 			folderOpenIcon = `${iconDivEl.innerHTML}`;
 			setIcon(iconDivEl, "lucide-file");
 			fileIcon = `${iconDivEl.innerHTML}`;
-			setIcon(iconDivEl, "lucide-edit");
-			newNoteIcon = `${iconDivEl.innerHTML}`;
 			if (isMainTree) {
 				setIcon(iconDivEl, "lucide-sort-asc");
 				upAndDownArrowsIcon = iconDivEl.innerHTML;
@@ -259,15 +254,6 @@
 <div hidden bind:this={iconDivEl}></div>
 <div class="nav-header">
 	<div class="nav-buttons-container tagfolder-buttons-container">
-		<!-- svelte-ignore a11y_click_events_have_key_events -->
-		<!-- svelte-ignore a11y_no_static_element_interactions -->
-		<div
-			class="clickable-icon nav-action-button"
-			aria-label="New note"
-			onclick={newNote}
-		>
-			{@html newNoteIcon}
-		</div>
 		{#if isMainTree}
 			<!-- svelte-ignore a11y_click_events_have_key_events -->
 			<!-- svelte-ignore a11y_no_static_element_interactions -->

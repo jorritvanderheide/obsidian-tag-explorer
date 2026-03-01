@@ -21,16 +21,10 @@ export class TagFolderView extends TagFolderViewBase {
 		this.plugin = plugin;
 		this.showMenu = this.showMenu.bind(this);
 		this.showOrder = this.showOrder.bind(this);
-		this.newNote = this.newNote.bind(this);
 		this.showLevelSelect = this.showLevelSelect.bind(this);
 		this.switchView = this.switchView.bind(this);
 		this.treeViewType = viewType;
 		// this.setState({ viewType: this.viewType, type: this.getViewType() }, {});
-	}
-
-	newNote(evt: MouseEvent) {
-		//@ts-ignore
-		this.app.commands.executeCommandById("file-explorer:new-file");
 	}
 
 	getViewType() {
@@ -52,7 +46,6 @@ export class TagFolderView extends TagFolderViewBase {
 				showMenu: this.showMenu,
 				showLevelSelect: this.showLevelSelect,
 				showOrder: this.showOrder,
-				newNote: this.newNote,
 				openScrollView: this.plugin.openScrollView,
 				isViewSwitchable: this.plugin.settings.useMultiPaneList,
 				switchView: this.switchView,
