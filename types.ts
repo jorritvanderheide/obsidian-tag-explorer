@@ -41,7 +41,6 @@ export interface TagFolderSettings {
 	useTitle: boolean;
 	reduceNestedParent: boolean;
 	frontmatterKey: string;
-	mergeRedundantCombination: boolean;
 	namespacedTagGuard: boolean;
 	useFrontmatterTagsForNewNotes: boolean,
 	doNotSimplifyTags: boolean;
@@ -70,7 +69,6 @@ export const DEFAULT_SETTINGS: TagFolderSettings = {
 	useTitle: true,
 	reduceNestedParent: true,
 	frontmatterKey: "title",
-	mergeRedundantCombination: false,
 	namespacedTagGuard: true,
 	useFrontmatterTagsForNewNotes: false,
 	doNotSimplifyTags: false,

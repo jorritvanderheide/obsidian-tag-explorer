@@ -1006,19 +1006,6 @@ class TagFolderSettingTab extends PluginSettingTab {
 					});
 			});
 		new Setting(containerEl)
-			.setName("Collapse redundant tag orderings")
-			.setDesc(
-				"Merge tag folders that differ only by order (e.g. area/project and project/area become a single folder)."
-			)
-			.addToggle((toggle) => {
-				toggle
-					.setValue(this.plugin.settings.mergeRedundantCombination)
-					.onChange(async (value) => {
-						this.plugin.settings.mergeRedundantCombination = value;
-						await this.plugin.saveSettings();
-					});
-			});
-		new Setting(containerEl)
 			.setName("Isolate sub-folders by namespace")
 			.setDesc(
 				"Only show sub-folders that belong to the same root namespace as the current folder. For example, inside source/, folders from area/ or project/ will not appear."

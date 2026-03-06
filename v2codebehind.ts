@@ -123,50 +123,45 @@ export async function collectTreeChildren({
 		let wChildren = [] as V2FolderItem[];
 		wChildren = await collectChildren(previousTrail, tags, _items);
 
-		// -- Check redundant combination if configured.
-		if (_setting.mergeRedundantCombination) {
-			const out = [] as typeof wChildren;
-			// Track shown items per root namespace so that cross-namespace
-			// siblings (e.g. area/* vs source/*) are never deduplicated
-			// against each other — only tags sharing the same root prefix are merged.
-			const isShownByNamespace = new Map<string, Set<string>>();
-			for (const [tag, tagName, tagsDisp, items] of wChildren) {
-				const namespace = tag.split("/")[0].toLowerCase().replace(/\/$/, "");
-				if (!isShownByNamespace.has(namespace)) {
-					isShownByNamespace.set(namespace, new Set<string>());
-				}
-				const isShown = isShownByNamespace.get(namespace)!;
-				const list = [] as ViewItem[];
-				for (const v of items) {
-					if (!isShown.has(v.path)) {
-						list.push(v);
-						isShown.add(v.path);
-					}
-				}
-				if (list.length != 0) out.push([tag, tagName, tagsDisp, list]);
+		// Deduplicate items across tag orderings, per namespace.
+		const out = [] as typeof wChildren;
+		const isShownByNamespace = new Map<string, Set<string>>();
+		for (const [tag, tagName, tagsDisp, items] of wChildren) {
+			const namespace = tag.split("/")[0].toLowerCase().replace(/\/$/, "");
+			if (!isShownByNamespace.has(namespace)) {
+				isShownByNamespace.set(namespace, new Set<string>());
 			}
-			wChildren = out;
-
-			// -- MainTree and Root specific structure modification.
-			if (isMainTree && isRoot) {
-				// Remove all items which have been already archived except is on the root.
-
-				const archiveTags = _setting.archiveTags.toLowerCase().replace(/[\n ]/g, "").split(",");
-				wChildren = wChildren
-					.map((e) =>
-						archiveTags.some((aTag) => `${aTag}//`.startsWith(e[V2FI_IDX_TAG].toLowerCase() + "/"))
-							? e
-							: ([
-									e[V2FI_IDX_TAG],
-									e[V2FI_IDX_TAGNAME],
-									e[V2FI_IDX_TAGDISP],
-									e[V2FI_IDX_CHILDREN].filter(
-										(items) => !items.tags.some((e) => archiveTags.contains(e.toLowerCase()))
-									),
-								] as V2FolderItem)
-					)
-					.filter((child) => child[V2FI_IDX_CHILDREN].length != 0);
+			const isShown = isShownByNamespace.get(namespace)!;
+			const list = [] as ViewItem[];
+			for (const v of items) {
+				if (!isShown.has(v.path)) {
+					list.push(v);
+					isShown.add(v.path);
+				}
 			}
+			if (list.length != 0) out.push([tag, tagName, tagsDisp, list]);
+		}
+		wChildren = out;
+
+		// -- MainTree and Root specific structure modification.
+		if (isMainTree && isRoot) {
+			// Remove all items which have been already archived except is on the root.
+
+			const archiveTags = _setting.archiveTags.toLowerCase().replace(/[\n ]/g, "").split(",");
+			wChildren = wChildren
+				.map((e) =>
+					archiveTags.some((aTag) => `${aTag}//`.startsWith(e[V2FI_IDX_TAG].toLowerCase() + "/"))
+						? e
+						: ([
+								e[V2FI_IDX_TAG],
+								e[V2FI_IDX_TAGNAME],
+								e[V2FI_IDX_TAGDISP],
+								e[V2FI_IDX_CHILDREN].filter(
+									(items) => !items.tags.some((e) => archiveTags.contains(e.toLowerCase()))
+								),
+							] as V2FolderItem)
+				)
+				.filter((child) => child[V2FI_IDX_CHILDREN].length != 0);
 		}
 		wChildren = wChildren.sort(sortFunc);
 		children = wChildren;
