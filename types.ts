@@ -32,7 +32,6 @@ export interface TagFolderSettings {
 	"CTIME_DESC" |
 	"FULLPATH_ASC" |
 	"FULLPATH_DESC";
-	sortExactFirst: boolean;
 	sortTypeTag: "NAME_ASC" | "NAME_DESC" | "ITEMS_ASC" | "ITEMS_DESC";
 	expandLimit: number;
 
@@ -53,15 +52,14 @@ export interface TagFolderSettings {
 
 export const DEFAULT_SETTINGS: TagFolderSettings = {
 	displayMethod: "NAME",
-	alwaysOpen: false,
+	alwaysOpen: true,
 	ignoreDocTags: "",
 	ignoreTags: "",
 	hideOnRootTags: "",
-	sortType: "DISPNAME_ASC",
-	sortExactFirst: false,
+	sortType: "MTIME_DESC",
 	sortTypeTag: "NAME_ASC",
 	expandLimit: 0,
-	hideItems: "NONE",
+	hideItems: "ALL_EXCEPT_BOTTOM",
 	ignoreFolders: "",
 	targetFolders: "",
 	scanDelay: 250,
@@ -69,7 +67,7 @@ export const DEFAULT_SETTINGS: TagFolderSettings = {
 	frontmatterKey: "title",
 	namespacedTagGuard: true,
 	useFrontmatterTagsForNewNotes: false,
-	doNotSimplifyTags: false,
+	doNotSimplifyTags: true,
 	overrideTagClicking: false,
 	archiveTags: "",
 	expandUntaggedToRoot: false,

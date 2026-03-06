@@ -912,17 +912,6 @@ class TagFolderSettingTab extends PluginSettingTab {
 					.onChange((order) => setOrderMethod(undefined, order));
 			});
 		new Setting(containerEl)
-			.setName("Exact matches first")
-			.setDesc("Show files that belong only to this tag (not any sub-tag) at the top of the list.")
-			.addToggle((toggle) => {
-				toggle
-					.setValue(this.plugin.settings.sortExactFirst)
-					.onChange(async (value) => {
-						this.plugin.settings.sortExactFirst = value;
-						await this.plugin.saveSettings();
-					});
-			});
-		new Setting(containerEl)
 			.setName("Show display name")
 			.setDesc(
 				"Show the note’s title from frontmatter or the first H1 heading instead of the filename."

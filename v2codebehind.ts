@@ -12,25 +12,6 @@ import {
 	waitForRequestAnimationFrame,
 } from "./util";
 
-export function performSortExactFirst(_items: ViewItem[], children: V2FolderItem[], leftOverItems: ViewItem[]) {
-	// const m2 = measure("new");
-	const childrenPathsArr = children.map((e) => e[V2FI_IDX_CHILDREN].map((ee) => ee.path)).flat();
-
-	const childrenPaths = new Set(childrenPathsArr);
-	const exactHerePaths = new Set(_items.map((e) => e.path));
-	childrenPaths.forEach((path) => exactHerePaths.delete(path));
-
-	//const isHerePaths =
-
-	const wk2 = [...leftOverItems].sort((a, b) => {
-		const aIsInChildren = exactHerePaths.has(a.path);
-		const bIsInChildren = exactHerePaths.has(b.path);
-		return (aIsInChildren ? -1 : 0) + (bIsInChildren ? 1 : 0);
-	});
-	// m2();
-
-	return [...wk2];
-}
 function delay() {
 	return new Promise<void>((res) => setTimeout(() => res(), 5));
 }

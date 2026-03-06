@@ -30,7 +30,7 @@
         tagFolderSetting,
         v2expandedTags,
     } from "./store";
-    import { collectTreeChildren, performSortExactFirst } from "./v2codebehind";
+    import { collectTreeChildren } from "./v2codebehind";
     import TreeItemItemComponent from "V2TreeItemComponent.svelte";
     import OnDemandRender from "OnDemandRender.svelte";
     import { getContext } from "svelte";
@@ -496,11 +496,7 @@
         }
     });
 
-    const leftOverItems = $derived(
-        _setting.sortExactFirst
-            ? performSortExactFirst(_items, children, leftOverItemsUnsorted)
-            : leftOverItemsUnsorted,
-    );
+    const leftOverItems = $derived(leftOverItemsUnsorted);
 
 
     // <-- Dirty area
