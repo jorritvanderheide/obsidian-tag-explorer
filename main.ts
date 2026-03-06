@@ -23,15 +23,12 @@ import {
 	OrderDirection,
 	OrderKeyItem,
 	OrderKeyTag,
-	type TagFolderListState,
 	type TagFolderSettings,
 	VIEW_TYPE_TAGFOLDER,
-	VIEW_TYPE_TAGFOLDER_LIST,
 	type ViewItem,
 	type FileCache,
-	enumShowListIn
 } from "types";
-import { allViewItems, appliedFiles, currentFile, maxDepth, pluginInstance, searchString, selectedTags, tagFolderSetting } from "store";
+import { allViewItems, appliedFiles, currentFile, maxDepth, pluginInstance, searchString, tagFolderSetting } from "store";
 import {
 	compare,
 	doEvents,
@@ -47,7 +44,6 @@ import {
 	trimPrefix,
 } from "./util";
 import { TagFolderView } from "./TagFolderView";
-import { TagFolderList } from "./TagFolderList";
 
 export type DISPLAY_METHOD = "PATH/NAME" | "NAME" | "NAME : PATH";
 
@@ -209,10 +205,6 @@ export default class TagFolderPlugin extends Plugin {
 		this.registerView(
 			VIEW_TYPE_TAGFOLDER,
 			(leaf) => new TagFolderView(leaf, this, "tags")
-		);
-		this.registerView(
-			VIEW_TYPE_TAGFOLDER_LIST,
-			(leaf) => new TagFolderList(leaf, this)
 		);
 		this.app.workspace.onLayoutReady(async () => {
 			this.loadFileInfo();
@@ -418,9 +410,6 @@ export default class TagFolderPlugin extends Plugin {
 				}
 			}, { capture: true })
 		);
-		selectedTags.subscribe(newTags => {
-			void this.openListView(newTags)
-		})
 	}
 
 	watchWorkspaceOpen(file: TFile | null) {
@@ -823,67 +812,6 @@ export default class TagFolderPlugin extends Plugin {
 		// this.compareTags = getCompareMethodTags(this.settings);
 	}
 
-	async openListView(tagSrc: string[]) {
-		if (!tagSrc) return;
-		const tags = tagSrc.first() == "root" ? tagSrc.slice(1) : tagSrc;
-
-		let theLeaf: WorkspaceLeaf | undefined = undefined;
-		for (const leaf of this.app.workspace.getLeavesOfType(
-			VIEW_TYPE_TAGFOLDER_LIST
-		)) {
-			const state = leaf.getViewState();
-			if (!state.state?.tags) continue;
-			if ((state.state.tags as string[]).slice().sort().join("-") == tags.slice().sort().join("-")) {
-				// already shown.
-				this.app.workspace.setActiveLeaf(leaf, { focus: true });
-				return;
-			}
-			if (state.pinned) {
-				// NO OP.
-			} else {
-				theLeaf = leaf
-			}
-		}
-		if (!theLeaf) {
-			const parent = this.app.workspace.getLeavesOfType(VIEW_TYPE_TAGFOLDER)?.first();
-			if (!parent) {
-				// Cancel if the tagfolder has been disappeared.
-				return;
-			}
-			switch (this.settings.showListIn) {
-				case "CURRENT_PANE":
-					theLeaf = this.app.workspace.getLeaf();
-					break;
-				case "SPLIT_PANE":
-					theLeaf = this.app.workspace.getLeaf("split", "horizontal");
-					break;
-				case "":
-				default:
-					if (!Platform.isMobile) {
-						theLeaf = this.app.workspace.createLeafBySplit(parent, "horizontal", false);
-					} else {
-						theLeaf = this.app.workspace.getLeftLeaf(false) as WorkspaceLeaf;
-					}
-					break;
-			}
-		}
-		const title = tags.map((e) =>
-			e
-				.split("/")
-				.map((ee) => renderSpecialTag(ee))
-				.join("/")
-		).join(" ");
-		await theLeaf.setViewState({
-			type: VIEW_TYPE_TAGFOLDER_LIST,
-			active: true,
-			state: { tags: tags, title: title } as TagFolderListState
-		});
-
-		await this.app.workspace.revealLeaf(
-			theLeaf
-		);
-	}
-
 	async createNewNote(tags?: string[]) {
 		const expandedTagsAll = ancestorToLongestTag(ancestorToTags(joinPartialPath(removeIntermediatePath(tags ?? []))))
 			.map((e) => trimTrailingSlash(e));
@@ -1055,29 +983,6 @@ class TagFolderSettingTab extends PluginSettingTab {
 					.setValue(this.plugin.settings.overrideTagClicking)
 					.onChange(async (value) => {
 						this.plugin.settings.overrideTagClicking = value;
-						await this.plugin.saveSettings();
-					});
-			});
-		new Setting(containerEl)
-			.setName("Open file list in a separate pane")
-			.setDesc("Show the list of files for a tag folder in a dedicated panel instead of inline.")
-			.addToggle((toggle) => {
-				toggle
-					.setValue(this.plugin.settings.useMultiPaneList)
-					.onChange(async (value) => {
-						this.plugin.settings.useMultiPaneList = value;
-						await this.plugin.saveSettings();
-					});
-			});
-		new Setting(containerEl)
-			.setName("New list pane location")
-			.setDesc("Where to open the file list pane. Applies to newly opened panes only.")
-			.addDropdown((dropdown) => {
-				dropdown
-					.addOptions(enumShowListIn)
-					.setValue(this.plugin.settings.showListIn)
-					.onChange(async (value) => {
-						this.plugin.settings.showListIn = value as keyof typeof enumShowListIn;
 						await this.plugin.saveSettings();
 					});
 			});

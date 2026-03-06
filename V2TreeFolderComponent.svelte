@@ -27,7 +27,6 @@
     import {
         currentFile,
         pluginInstance,
-        selectedTags,
         tagFolderSetting,
         v2expandedTags,
     } from "./store";
@@ -114,10 +113,6 @@
         evt.stopPropagation();
         if (shouldResponsibleFor(evt)) {
             evt.preventDefault();
-            // Do not toggle this tree directly.
-            if (_setting.useMultiPaneList) {
-                selectedTags.set(trail);
-            }
             v2expandedTags.update((evt) => {
                 if (evt.has(trailKey)) {
                     evt.delete(trailKey);
@@ -471,7 +466,6 @@
     });
 
     const leftOverItemsUnsorted = $derived.by(() => {
-        if (_setting.useMultiPaneList && isMainTree) return [] as ViewItem[];
         if (isRoot && isMainTree && !isSuppressibleLevel) {
             // The root, except not is suppressible.
             if (_setting.expandUntaggedToRoot) {

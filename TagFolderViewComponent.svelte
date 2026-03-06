@@ -10,15 +10,12 @@
 	import {
 		type ViewItem,
 		type TagFolderSettings,
-		type TagFolderListState,
 	} from "./types";
 	import V2TreeFolderComponent from "./V2TreeFolderComponent.svelte";
 	import { onDestroy, onMount } from "svelte";
 	import { setIcon } from "obsidian";
 	import { trimTrailingSlash } from "./util";
 	import { setContext } from "svelte";
-	import type { Writable } from "svelte/store";
-
 	interface Props {
 		hoverPreview: (e: MouseEvent, path: string) => void;
 		openFile: (path: string, specialKey: boolean) => void;
@@ -34,9 +31,6 @@
 		) => void;
 		showLevelSelect: (evt: MouseEvent) => void;
 		showOrder: (evt: MouseEvent) => void;
-		isViewSwitchable: boolean;
-		switchView: () => void;
-		stateStore?: Writable<TagFolderListState>;
 	}
 
 	let {
@@ -49,24 +43,9 @@
 		showMenu,
 		showLevelSelect,
 		showOrder,
-		isViewSwitchable,
-		switchView,
-		stateStore,
 	}: Props = $props();
 
 	const isMainTree = $derived(tags.length == 0);
-
-	$effect(()=>{
-		if (stateStore) {
-			let unsubscribe = stateStore.subscribe((state) => {
-				tags = state.tags;
-				title = state.title;
-			});
-			return () => {
-				unsubscribe();
-			};
-		}
-	});
 
 	let updatedFiles = $state([] as string[]);
 	appliedFiles.subscribe(async (filenames) => {
@@ -93,11 +72,6 @@
 		$searchString = "";
 	}
 
-	function doSwitch() {
-		if (switchView) {
-			switchView();
-		}
-	}
 	let iconDivEl = $state<HTMLDivElement>();
 	let folderIcon = $state("");
 	let folderOpenIcon = $state("");
@@ -105,7 +79,6 @@
 	let upAndDownArrowsIcon = $state("");
 	let stackedLevels = $state("");
 	let searchIcon = $state("");
-	let switchIcon = $state("");
 	let closeAllIcon = $state("");
 	let namespaceGuardIcon = $state("");
 
@@ -185,8 +158,6 @@
 				setIcon(iconDivEl, "lucide-filter");
 				namespaceGuardIcon = iconDivEl.innerHTML;
 			}
-			setIcon(iconDivEl, "lucide-arrow-left-right");
-			switchIcon = iconDivEl.innerHTML;
 			setIcon(iconDivEl, "lucide-chevrons-down-up");
 			closeAllIcon = iconDivEl.innerHTML;
 		}
@@ -292,17 +263,6 @@
 				onclick={toggleNamespaceGuard}
 			>
 				{@html namespaceGuardIcon}
-			</div>
-		{/if}
-		{#if isViewSwitchable}
-			<!-- svelte-ignore a11y_click_events_have_key_events -->
-			<!-- svelte-ignore a11y_no_static_element_interactions -->
-			<div
-				class="clickable-icon nav-action-button"
-				aria-label="Switch List/Tree"
-				onclick={doSwitch}
-			>
-				{@html switchIcon}
 			</div>
 		{/if}
 		{#if isMainTree}

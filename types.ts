@@ -14,12 +14,6 @@ export interface ViewItem {
 	ctime: number;
 	filename: string;
 }
-export const enumShowListIn = {
-	"": "Sidebar",
-	"CURRENT_PANE": "Current pane",
-	"SPLIT_PANE": "New pane",
-}
-
 export interface TagFolderSettings {
 	displayMethod: DISPLAY_METHOD;
 	alwaysOpen: boolean;
@@ -52,13 +46,11 @@ export interface TagFolderSettings {
 	useFrontmatterTagsForNewNotes: boolean,
 	doNotSimplifyTags: boolean;
 	overrideTagClicking: boolean;
-	useMultiPaneList: boolean;
 	archiveTags: string;
 	expandUntaggedToRoot: boolean;
 	disableDragging: boolean;
 	pinnedFolders: string[];
 	tagIcons: Record<string, string>;
-	showListIn: keyof typeof enumShowListIn;
 }
 
 export const DEFAULT_SETTINGS: TagFolderSettings = {
@@ -83,13 +75,11 @@ export const DEFAULT_SETTINGS: TagFolderSettings = {
 	useFrontmatterTagsForNewNotes: false,
 	doNotSimplifyTags: false,
 	overrideTagClicking: false,
-	useMultiPaneList: false,
 	archiveTags: "",
 	expandUntaggedToRoot: false,
 	disableDragging: false,
 	pinnedFolders: [],
 	tagIcons: {},
-	showListIn: "",
 };
 
 export const tagDispDict: { [key: string]: string } = {
@@ -97,7 +87,6 @@ export const tagDispDict: { [key: string]: string } = {
 };
 
 export const VIEW_TYPE_TAGFOLDER = "tagfolder-view";
-export const VIEW_TYPE_TAGFOLDER_LIST = "tagfolder-view-list";
 export type TREE_TYPE = "tags";
 
 export const OrderKeyTag: Record<string, string> = {
@@ -115,12 +104,6 @@ export const OrderKeyItem: Record<string, string> = {
 	CTIME: "Created time",
 	FULLPATH: "Fullpath of the file",
 };
-
-
-export type TagFolderListState = {
-	tags: string[];
-	title: string;
-}
 
 
 export type FileCache = {

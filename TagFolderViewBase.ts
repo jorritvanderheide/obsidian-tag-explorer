@@ -6,11 +6,10 @@ import {
 	OrderKeyItem,
 	OrderKeyTag,
 	VIEW_TYPE_TAGFOLDER,
-	VIEW_TYPE_TAGFOLDER_LIST,
 	type TagFolderSettings,
 	type ViewItem
 } from "./types";
-import { maxDepth, selectedTags } from "./store";
+import { maxDepth } from "./store";
 import { ancestorToLongestTag, ancestorToTags, isSpecialTag, renderSpecialTag, joinPartialPath, removeIntermediatePath, trimTrailingSlash } from "./util";
 import { askString } from "dialog";
 import { IconPickerModal } from "./IconPickerModal";
@@ -294,20 +293,4 @@ export abstract class TagFolderViewBase extends ItemView {
 		// menu.showAtMouseEvent(evt);
 	}
 
-	switchView() {
-		let viewType = VIEW_TYPE_TAGFOLDER;
-		const currentType = this.getViewType();
-		if (currentType == VIEW_TYPE_TAGFOLDER) {
-			viewType = VIEW_TYPE_TAGFOLDER_LIST;
-		} else if (currentType == VIEW_TYPE_TAGFOLDER_LIST) {
-			viewType = VIEW_TYPE_TAGFOLDER;
-		}
-
-		const leaves = this.app.workspace.getLeavesOfType(viewType).filter(e => !e.getViewState().pinned && e != this.leaf);
-		if (leaves.length) {
-			void this.app.workspace.revealLeaf(
-				leaves[0]
-			);
-		}
-	}
 }

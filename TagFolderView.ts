@@ -22,7 +22,6 @@ export class TagFolderView extends TagFolderViewBase {
 		this.showMenu = this.showMenu.bind(this);
 		this.showOrder = this.showOrder.bind(this);
 		this.showLevelSelect = this.showLevelSelect.bind(this);
-		this.switchView = this.switchView.bind(this);
 		this.treeViewType = viewType;
 		// this.setState({ viewType: this.viewType, type: this.getViewType() }, {});
 	}
@@ -46,8 +45,6 @@ export class TagFolderView extends TagFolderViewBase {
 				showMenu: this.showMenu,
 				showLevelSelect: this.showLevelSelect,
 				showOrder: this.showOrder,
-				isViewSwitchable: this.plugin.settings.useMultiPaneList,
-				switchView: this.switchView,
 				saveSettings: this.saveSettings.bind(this),
 			},
 		});
