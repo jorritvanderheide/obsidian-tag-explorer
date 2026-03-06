@@ -520,6 +520,15 @@
         _items && _items.some((e) => e.path == _currentActiveFilePath),
     );
 
+    $effect(() => {
+        if (isActive && !isRoot) {
+            v2expandedTags.update((set) => {
+                set.add(trailKey);
+                return set;
+            });
+        }
+    });
+
     const tagsDisp = $derived(
         isSuppressibleLevel
             ? [
@@ -617,7 +626,7 @@
         <OnDemandRender
             cssClass={`tree-item-self${
                 !isRoot ? " is-clickable mod-collapsible" : ""
-            } nav-folder-title tag-folder-title${isActive ? " is-active" : ""}`}
+            } nav-folder-title tag-folder-title`}
             bind:isVisible={isFolderVisible}
         >
             <!-- svelte-ignore a11y_click_events_have_key_events -->
