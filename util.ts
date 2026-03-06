@@ -9,6 +9,10 @@ export function unique<T>(items: T[]) {
 	return [...new Set<T>([...items])];
 }
 
+export function getRootNamespace(tag: string): string {
+	return tag.split("/")[0].toLowerCase().replace(/\/$/, "");
+}
+
 export function trimSlash(src: string, keepStart = false, keepEnd = false) {
 	const st = keepStart ? 0 : (src[0] == "/" ? 1 : 0);
 	const end = keepEnd ? undefined : (src.endsWith("/") ? -1 : undefined);
@@ -370,7 +374,7 @@ export function _isSameViewItem(a: ViewItem[], b: ViewItem[]) {
 	if (a === b) return true;
 	if (a.length != b.length) return false;
 	for (const j in a) {
-		if (a[j] === b[j]) return true;
+		if (a[j] === b[j]) continue;
 		for (const k in a[j]) {
 			if (!isSameObj(a[j][k as keyof ViewItem], b[j][k as keyof ViewItem])) return false;
 		}

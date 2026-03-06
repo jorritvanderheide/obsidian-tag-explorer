@@ -450,8 +450,6 @@ export default class TagFolderPlugin extends Plugin {
 	oldFileCache = "";
 
 
-	parsedFileCache = new Map<string, number>();
-
 	getFileCacheLinks(_file: TFile): string[] {
 		return [];
 	}
@@ -467,8 +465,7 @@ export default class TagFolderPlugin extends Plugin {
 	}
 	updateFileCachesAll(): boolean {
 		const filesAll = [...this.app.vault.getMarkdownFiles(), ...this.app.vault.getAllLoadedFiles().filter(e => "extension" in e && e.extension == "canvas") as TFile[]];
-		const processFiles = filesAll.filter(file => this.parsedFileCache.get(file.path) ?? 0 != file.stat.mtime);
-		const caches = processFiles.map(entry => this.getFileCacheData(entry)).filter(e => e !== false)
+		const caches = filesAll.map(entry => this.getFileCacheData(entry)).filter(e => e !== false)
 		this.fileCaches = [...caches];
 		return this.isFileCacheChanged();
 	}
@@ -533,7 +530,8 @@ export default class TagFolderPlugin extends Plugin {
 		const ignoreTags = this.settings.ignoreTags
 			.toLowerCase()
 			.replace(/[\n ]/g, "")
-			.split(",");
+			.split(",")
+			.map((e) => e.replace(/\/+$/, ""));
 
 		const ignoreFolders = this.settings.ignoreFolders
 			.toLowerCase()
@@ -632,14 +630,15 @@ export default class TagFolderPlugin extends Plugin {
 
 			if (w.every((e) => e)) continue;
 
-			allTags = allTags.filter(
-				(tag) => !ignoreTags.some(
+			allTags = allTags.filter((tag) => {
+				const tagLC = tag.toLowerCase();
+				return !ignoreTags.some(
 					(ignore) => ignore !== "" && (
-						tag.toLowerCase() === ignore ||
-						tag.toLowerCase().startsWith(ignore + "/")
+						tagLC === ignore ||
+						tagLC.startsWith(ignore + "/")
 					)
-				)
-			);
+				);
+			});
 
 			// if (this.settings.reduceNestedParent) {
 			// 	allTags = mergeSameParents(allTags);
@@ -786,7 +785,6 @@ export default class TagFolderPlugin extends Plugin {
 		}
 	}
 	async refreshAllViewItems() {
-		this.parsedFileCache.clear();
 		const items = await this.getItemsList();
 		const itemsSorted = items.sort(this.compareItems);
 		this.allViewItems = itemsSorted;

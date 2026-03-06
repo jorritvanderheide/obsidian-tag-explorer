@@ -1,5 +1,5 @@
 import { ItemView, Menu, Notice } from "obsidian";
-import { mount } from 'svelte'
+import { mount } from "svelte";
 import TagFolderPlugin from "./main";
 import {
 	OrderDirection,
@@ -7,11 +7,17 @@ import {
 	OrderKeyTag,
 	VIEW_TYPE_TAGFOLDER,
 	type TagFolderSettings,
-	type ViewItem
+	type ViewItem,
 } from "./types";
 import { maxDepth } from "./store";
-import { ancestorToLongestTag, ancestorToTags, isSpecialTag, renderSpecialTag, joinPartialPath, removeIntermediatePath, trimTrailingSlash } from "./util";
-import { askString } from "dialog";
+import {
+	ancestorToLongestTag,
+	ancestorToTags,
+	isSpecialTag,
+	joinPartialPath,
+	removeIntermediatePath,
+	trimTrailingSlash,
+} from "./util";
 import { IconPickerModal } from "./IconPickerModal";
 
 export abstract class TagFolderViewBase extends ItemView {
@@ -29,26 +35,18 @@ export abstract class TagFolderViewBase extends ItemView {
 		menu.addItem((item) => {
 			item.setTitle("Tags")
 				.setIcon("hashtag")
-				.onClick((evt2) => {
+				.onClick(() => {
 					const menu2 = new Menu();
 					for (const key in OrderKeyTag) {
 						for (const direction in OrderDirection) {
 							menu2.addItem((item) => {
 								const newSetting = `${key}_${direction}`;
-								item.setTitle(
-									OrderKeyTag[key] +
-									" " +
-									OrderDirection[direction]
-								).onClick(async () => {
+								item.setTitle(OrderKeyTag[key] + " " + OrderDirection[direction]).onClick(async () => {
 									//@ts-ignore
-									this.plugin.settings.sortTypeTag =
-										newSetting;
+									this.plugin.settings.sortTypeTag = newSetting;
 									await this.plugin.saveSettings();
 								});
-								if (
-									newSetting ==
-									this.plugin.settings.sortTypeTag
-								) {
+								if (newSetting == this.plugin.settings.sortTypeTag) {
 									item.setIcon("checkmark");
 								}
 								return item;
@@ -62,24 +60,18 @@ export abstract class TagFolderViewBase extends ItemView {
 		menu.addItem((item) => {
 			item.setTitle("Items")
 				.setIcon("document")
-				.onClick((evt2) => {
+				.onClick(() => {
 					const menu2 = new Menu();
 					for (const key in OrderKeyItem) {
 						for (const direction in OrderDirection) {
 							menu2.addItem((item) => {
 								const newSetting = `${key}_${direction}`;
-								item.setTitle(
-									OrderKeyItem[key] +
-									" " +
-									OrderDirection[direction]
-								).onClick(async () => {
+								item.setTitle(OrderKeyItem[key] + " " + OrderDirection[direction]).onClick(async () => {
 									//@ts-ignore
 									this.plugin.settings.sortType = newSetting;
 									await this.plugin.saveSettings();
 								});
-								if (
-									newSetting == this.plugin.settings.sortType
-								) {
+								if (newSetting == this.plugin.settings.sortType) {
 									item.setIcon("checkmark");
 								}
 								return item;
@@ -105,20 +97,17 @@ export abstract class TagFolderViewBase extends ItemView {
 				item.setTitle(`Level ${level - 1}`).onClick(() => {
 					void setLevel(level);
 				});
-				if (this.plugin.settings.expandLimit == level)
-					item.setIcon("checkmark");
+				if (this.plugin.settings.expandLimit == level) item.setIcon("checkmark");
 				return item;
 			});
 		}
 
 		menu.addItem((item) => {
 			item.setTitle("No limit")
-				// .setIcon("hashtag")
 				.onClick(() => {
 					void setLevel(0);
 				});
-			if (this.plugin.settings.expandLimit == 0)
-				item.setIcon("checkmark");
+			if (this.plugin.settings.expandLimit == 0) item.setIcon("checkmark");
 
 			return item;
 		});
@@ -128,27 +117,23 @@ export abstract class TagFolderViewBase extends ItemView {
 	abstract getViewType(): string;
 
 	showMenu(evt: MouseEvent, trail: string[], targetTag?: string, targetItems?: ViewItem[]) {
-
 		const isTagTree = this.getViewType() == VIEW_TYPE_TAGFOLDER;
 		const menu = new Menu();
 		if (isTagTree) {
-
-			const expandedTagsAll = ancestorToLongestTag(ancestorToTags(joinPartialPath(removeIntermediatePath(trail)))).map(e => trimTrailingSlash(e));
+			const expandedTagsAll = ancestorToLongestTag(
+				ancestorToTags(joinPartialPath(removeIntermediatePath(trail)))
+			).map((e) => trimTrailingSlash(e));
 			const expandedTags = expandedTagsAll
-				.map(e => e.split("/")
-					.filter(ee => !isSpecialTag(ee))
-					.join("/")).filter(e => e != "")
+				.map((e) =>
+					e
+						.split("/")
+						.filter((ee) => !isSpecialTag(ee))
+						.join("/")
+				)
+				.filter((e) => e != "")
 				.map((e) => "#" + e)
 				.join(" ")
 				.trim();
-			const displayExpandedTags = expandedTagsAll
-				.map(e => e.split("/")
-					.filter(ee => renderSpecialTag(ee))
-					.join("/")).filter(e => e != "")
-				.map((e) => "#" + e)
-				.join(" ")
-				.trim();
-
 
 			if (navigator && navigator.clipboard) {
 				menu.addItem((item) =>
@@ -166,16 +151,20 @@ export abstract class TagFolderViewBase extends ItemView {
 				const isPinned = this.plugin.settings.pinnedFolders.contains(pinnedTag);
 				if (isPinned) {
 					menu.addItem((item) =>
-						item.setTitle("Unpin folder")
+						item
+							.setTitle("Unpin folder")
 							.setIcon("lucide-pin")
 							.onClick(async () => {
-								this.plugin.settings.pinnedFolders = this.plugin.settings.pinnedFolders.filter(f => f !== pinnedTag);
+								this.plugin.settings.pinnedFolders = this.plugin.settings.pinnedFolders.filter(
+									(f) => f !== pinnedTag
+								);
 								await this.plugin.saveSettings();
 							})
 					);
 				} else {
 					menu.addItem((item) =>
-						item.setTitle("Pin folder")
+						item
+							.setTitle("Pin folder")
 							.setIcon("lucide-pin")
 							.onClick(async () => {
 								this.plugin.settings.pinnedFolders = [...this.plugin.settings.pinnedFolders, pinnedTag];
@@ -187,7 +176,8 @@ export abstract class TagFolderViewBase extends ItemView {
 				const currentMark = this.plugin.settings.tagIcons?.[iconTag] ?? "";
 				if (currentMark) {
 					menu.addItem((item) =>
-						item.setTitle("Remove folder icon")
+						item
+							.setTitle("Remove folder icon")
 							.setIcon("lucide-image-off")
 							.onClick(async () => {
 								delete this.plugin.settings.tagIcons[iconTag];
@@ -196,11 +186,15 @@ export abstract class TagFolderViewBase extends ItemView {
 					);
 				} else {
 					menu.addItem((item) =>
-						item.setTitle("Set folder icon")
+						item
+							.setTitle("Set folder icon")
 							.setIcon("lucide-image-plus")
 							.onClick(() => {
 								new IconPickerModal(this.app, async (iconId) => {
-									this.plugin.settings.tagIcons = { ...this.plugin.settings.tagIcons, [iconTag]: iconId };
+									this.plugin.settings.tagIcons = {
+										...this.plugin.settings.tagIcons,
+										[iconTag]: iconId,
+									};
 									await this.plugin.saveSettings();
 								}).open();
 							})
@@ -212,12 +206,7 @@ export abstract class TagFolderViewBase extends ItemView {
 			const path = targetItems[0].path;
 			const file = this.app.vault.getAbstractFileByPath(path);
 			// Trigger
-			this.app.workspace.trigger(
-				"file-menu",
-				menu,
-				file,
-				"file-explorer"
-			);
+			this.app.workspace.trigger("file-menu", menu, file, "file-explorer");
 			menu.addSeparator();
 			menu.addItem((item) =>
 				item
@@ -253,12 +242,7 @@ export abstract class TagFolderViewBase extends ItemView {
 			const path = targetTag;
 			const file = this.app.vault.getAbstractFileByPath(path);
 			// Trigger
-			this.app.workspace.trigger(
-				"file-menu",
-				menu,
-				file,
-				"file-explorer"
-			);
+			this.app.workspace.trigger("file-menu", menu, file, "file-explorer");
 			menu.addSeparator();
 			menu.addItem((item) =>
 				item
@@ -290,7 +274,5 @@ export abstract class TagFolderViewBase extends ItemView {
 			});
 		}
 		evt.preventDefault();
-		// menu.showAtMouseEvent(evt);
 	}
-
 }

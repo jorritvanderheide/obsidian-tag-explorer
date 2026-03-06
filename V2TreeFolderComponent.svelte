@@ -23,6 +23,7 @@
         _isSameViewItem,
         scheduleOnceIfDuplicated,
         isSameAny,
+        getRootNamespace,
     } from "./util";
     import {
         currentFile,
@@ -294,7 +295,7 @@
             // Namespace guard: inside a non-root folder, only show tags from the
             // same root namespace (e.g., inside source/, never show area/*).
             if (!isRoot && trail.length > 0 && _setting.namespacedTagGuard) {
-                const rootNS = trail[0].split("/")[0].toLowerCase();
+                const rootNS = getRootNamespace(trail[0]);
                 if (rootNS) {
                     tagsAll = tagsAll.filter((tag) => {
                         const lc = tag.toLowerCase();

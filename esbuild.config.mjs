@@ -14,9 +14,6 @@ if you want to view the source, please visit the github repository of this plugi
 `;
 
 const manifestJson = JSON.parse(fs.readFileSync("./manifest.json") + "");
-const packageJson = JSON.parse(fs.readFileSync("./package.json") + "");
-const updateInfo = JSON.stringify(fs.readFileSync("./updates.md") + "");
-
 const prod = process.argv[2] === "production" || process.env?.BUILD_MODE === "production";
 
 const PATHS_TEST_INSTALL = process.env?.PATHS_TEST_INSTALL || "";

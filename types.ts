@@ -21,7 +21,6 @@ export interface TagFolderSettings {
 	ignoreTags: string;
 	ignoreFolders: string;
 	targetFolders: string;
-	hideOnRootTags: string;
 	sortType: "DISPNAME_ASC" |
 	"DISPNAME_DESC" |
 	"NAME_ASC" |
@@ -55,7 +54,6 @@ export const DEFAULT_SETTINGS: TagFolderSettings = {
 	alwaysOpen: true,
 	ignoreDocTags: "",
 	ignoreTags: "",
-	hideOnRootTags: "",
 	sortType: "MTIME_DESC",
 	sortTypeTag: "NAME_ASC",
 	expandLimit: 0,

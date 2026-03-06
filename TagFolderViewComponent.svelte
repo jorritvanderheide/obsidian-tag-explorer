@@ -62,6 +62,11 @@
 	});
 
 	let showSearch = $state(false);
+	$effect(() => {
+		if ($searchString !== "") {
+			showSearch = true;
+		}
+	});
 	function toggleSearch() {
 		showSearch = !showSearch;
 		if (!showSearch) {
@@ -70,6 +75,7 @@
 	}
 	function clearSearch() {
 		$searchString = "";
+		showSearch = false;
 	}
 
 	let iconDivEl = $state<HTMLDivElement>();

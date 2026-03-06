@@ -10,6 +10,7 @@ import {
 	V2FI_IDX_TAGNAME,
 	V2FI_IDX_TAGDISP,
 	waitForRequestAnimationFrame,
+	getRootNamespace,
 } from "./util";
 
 function delay() {
@@ -108,7 +109,7 @@ export async function collectTreeChildren({
 		const out = [] as typeof wChildren;
 		const isShownByNamespace = new Map<string, Set<string>>();
 		for (const [tag, tagName, tagsDisp, items] of wChildren) {
-			const namespace = tag.split("/")[0].toLowerCase().replace(/\/$/, "");
+			const namespace = getRootNamespace(tag);
 			if (!isShownByNamespace.has(namespace)) {
 				isShownByNamespace.set(namespace, new Set<string>());
 			}

@@ -1,19 +1,20 @@
 {
-  description = "Nested Tag Folder — Obsidian plugin (fork of TagFolder)";
+  description = "Tag Folder Plus Obsidian plugin (fork of TagFolder)";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = { nixpkgs, flake-utils, ... }:
-    flake-utils.lib.eachDefaultSystem (system:
+  outputs =
+    { nixpkgs, flake-utils, ... }:
+    flake-utils.lib.eachDefaultSystem (
+      system:
       let
         pkgs = import nixpkgs { inherit system; };
       in
       {
-        # --- Production build ---
-        # Outputs main.js, manifest.json, styles.css in $out/
+        # Production build
         packages.default = pkgs.buildNpmPackage {
           pname = "obsidian-tagfolder-plus";
           version = "0.18.13";
@@ -38,10 +39,7 @@
           doCheck = false;
         };
 
-        # --- Development shell ---
-        # Run `nix develop` to get node + npm, then:
-        #   npm install
-        #   npm run dev
+        # Development shell
         devShells.default = pkgs.mkShell {
           buildInputs = [
             pkgs.nodejs_22

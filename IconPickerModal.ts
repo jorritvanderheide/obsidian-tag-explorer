@@ -40,6 +40,7 @@ export class IconPickerModal extends Modal {
 
 		render("");
 		searchEl.addEventListener("input", () => render(searchEl.value));
+		
 		// Focus after the modal animation settles
 		setTimeout(() => searchEl.focus(), 50);
 	}

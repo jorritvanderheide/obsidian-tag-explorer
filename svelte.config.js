@@ -7,11 +7,11 @@ import { sveltePreprocess } from "svelte-preprocess";
  */
 const config = {
 	preprocess: sveltePreprocess({
-		// ...svelte-preprocess options
+		// Svelte-preprocess options
 	}),
 	cache: false,
 	compilerOptions: { css: "injected" },
-	// ...other svelte options
+	// Other svelte options
 };
 
 export default config;
