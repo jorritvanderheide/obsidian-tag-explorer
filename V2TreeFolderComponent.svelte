@@ -1,6 +1,5 @@
 <script lang="ts">
     import V2TreeFolderComponent from "./V2TreeFolderComponent.svelte";
-    //TODO Add Comments for details
     import {
         type TagFolderSettings,
         type ViewItem,
