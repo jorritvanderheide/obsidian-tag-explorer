@@ -146,7 +146,6 @@
         }
         _lastParam = { ...param };
         if (!param.isFolderVisible && !isRoot) {
-            // console.log("invisible!");
             return;
         }
 
@@ -173,7 +172,7 @@
             const applyItems = [...items];
             do {
                 const batch = applyItems.splice(0, batchSize);
-                if (batch.length == 0) {
+                if (batch.length === 0) {
                     break;
                 }
                 ret.push(batch);
@@ -423,7 +422,7 @@
 
             if (!hasCrossNSTags) {
                 // If the note has only one item. it can be suppressible.
-                if (items.length == 1) {
+                if (items.length === 1) {
                     existTagsFiltered1 = existTags;
                     isSuppressibleLevel = true;
                 } else {
@@ -431,7 +430,7 @@
                     const allChildTags = uniqueCaseIntensive(
                         items.map((e) => [...e.tags].sort().join("**")),
                     );
-                    if (allChildTags.length == 1) {
+                    if (allChildTags.length === 1) {
                         isSuppressibleLevel = true;
                         existTagsFiltered1 = existTags;
                     }
@@ -534,11 +533,11 @@
             // Separated List;
             return items;
         }
-        if (_setting.hideItems == "NONE") {
+        if (_setting.hideItems === "NONE") {
             return items;
         } else if (
-            (_setting.hideItems == "DEDICATED_INTERMIDIATES" && isInDedicatedTag) ||
-            _setting.hideItems == "ALL_EXCEPT_BOTTOM"
+            (_setting.hideItems === "DEDICATED_INTERMIDIATES" && isInDedicatedTag) ||
+            _setting.hideItems === "ALL_EXCEPT_BOTTOM"
         ) {
             // When cross-namespace sub-folders are shown (guard OFF), only same-namespace
             // children should push items down. Cross-namespace children (e.g., source/ inside
@@ -565,7 +564,7 @@
     // -- Displaying
 
     let isActive = $derived(
-        items.some((e) => e.path == _currentActiveFilePath),
+        items.some((e) => e.path === _currentActiveFilePath),
     );
 
     $effect(() => {

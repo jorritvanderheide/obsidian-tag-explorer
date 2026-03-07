@@ -38,7 +38,7 @@
     const _currentActiveFilePath = $derived($currentFile);
 
     // To highlighting
-    let isActive = $derived(item.path == _currentActiveFilePath);
+    let isActive = $derived(item.path === _currentActiveFilePath);
 
     let isItemVisible = $state(false);
 

@@ -22,9 +22,9 @@ export function parseTagList(str: string): string[] {
 }
 
 export function trimSlash(src: string, keepStart = false, keepEnd = false) {
-	const st = keepStart ? 0 : (src[0] == "/" ? 1 : 0);
+	const st = keepStart ? 0 : (src[0] === "/" ? 1 : 0);
 	const end = keepEnd ? undefined : (src.endsWith("/") ? -1 : undefined);
-	if (st == 0 && end == undefined) return src;
+	if (st === 0 && end === undefined) return src;
 	return src.slice(st, end);
 }
 export function trimPrefix(source: string, prefix: string) {
@@ -55,7 +55,7 @@ export function ancestorToLongestTag(ancestors: string[]): string[] {
 
 export function isSpecialTag(tagSrc: string) {
 	const tag = trimSlash(tagSrc);
-	return tag == "_untagged" || tag in tagDispDict;
+	return tag === "_untagged" || tag in tagDispDict;
 }
 
 export function renderSpecialTag(tagSrc: string) {
@@ -188,8 +188,8 @@ export function selectCompareMethodTags(settings: TagFolderSettings) {
 		return aPinned ? -1 : 1;
 	};
 	const sortByName = (a: V2FolderItem, b: V2FolderItem) => {
-		const isASubTree = a[V2FI_IDX_TAGDISP][0] == "";
-		const isBSubTree = b[V2FI_IDX_TAGDISP][0] == "";
+		const isASubTree = a[V2FI_IDX_TAGDISP][0] === "";
+		const isBSubTree = b[V2FI_IDX_TAGDISP][0] === "";
 		const aName = a[V2FI_IDX_TAGNAME];
 		const bName = b[V2FI_IDX_TAGNAME];
 		const pinned = pinnedFirst(aName, bName);
@@ -208,7 +208,7 @@ export function selectCompareMethodTags(settings: TagFolderSettings) {
 				if (pinned !== null) return pinned;
 				const aCount = a[V2FI_IDX_CHILDREN].length;
 				const bCount = b[V2FI_IDX_CHILDREN].length;
-				if (aCount == bCount) return sortByName(a, b);
+				if (aCount === bCount) return sortByName(a, b);
 				return (aCount - bCount) * invert;
 			}
 		case "NAME_ASC":
@@ -217,8 +217,8 @@ export function selectCompareMethodTags(settings: TagFolderSettings) {
 		default:
 			console.warn("Compare method (tags) corrupted");
 			return (a: V2FolderItem, b: V2FolderItem) => {
-				const isASubTree = a[V2FI_IDX_TAGDISP][0] == "";
-				const isBSubTree = b[V2FI_IDX_TAGDISP][0] == "";
+				const isASubTree = a[V2FI_IDX_TAGDISP][0] === "";
+				const isBSubTree = b[V2FI_IDX_TAGDISP][0] === "";
 				const aName = a[V2FI_IDX_TAGNAME];
 				const bName = b[V2FI_IDX_TAGNAME];
 				const aPrefix = isASubTree ? subTreeChar[invert] : "";
@@ -290,8 +290,8 @@ export function matchesArchiveTag(tag: string, pattern: string): boolean {
 }
 
 export function pathMatch(haystackLC: string, needleLC: string) {
-	if (haystackLC == needleLC) return true;
-	if (needleLC[needleLC.length - 1] == "/") {
+	if (haystackLC === needleLC) return true;
+	if (needleLC[needleLC.length - 1] === "/") {
 		if ((haystackLC + "/").indexOf(needleLC) === 0) return true;
 	}
 	return false;
@@ -326,10 +326,10 @@ export function fileCacheToCompare(cache: FileCache | undefined | false) {
 
 export function isSameObj<T extends string | number | string[]>(a: T, b: typeof a) {
 	if (a === b) return true;
-	if (typeof a == "string" || typeof a == "number") {
-		return a == b;
+	if (typeof a === "string" || typeof a === "number") {
+		return a === b;
 	}
-	if (a.length != (b as string[]).length) return false;
+	if (a.length !== (b as string[]).length) return false;
 	const len = a.length;
 	for (let i = 0; i < len; i++) {
 		if (!isSameObj(a[i], (b as string[])[i])) return false;
@@ -356,8 +356,7 @@ export async function scheduleOnceIfDuplicated<T>(key: string, proc: () => Promi
 			runningProcess.delete(key);
 			return scheduleOnceIfDuplicated(key, nextProc);
 		} else {
-			//console.log(`run!! ${key}`);
-			await proc();
+				await proc();
 		}
 	}
 	finally {
@@ -376,11 +375,11 @@ export function isSameAny(a: unknown, b: unknown) {
 		case "symbol":
 		case "function":
 		case "undefined":
-			return a == b;
+			return a === b;
 		case "object":
 			if (a === b) return true;
 			if (a instanceof Map || a instanceof Set) {
-				if (a.size != (b as typeof a).size) return false;
+				if (a.size !== (b as typeof a).size) return false;
 				const v = [...a]
 				const w = [...(b as typeof a)];
 				for (let i = 0; i < v.length; i++) {

@@ -41,11 +41,11 @@ export abstract class TagFolderViewBase extends ItemView {
 							menu2.addItem((item) => {
 								const newSetting = `${key}_${direction}`;
 								item.setTitle(OrderKeyTag[key] + " " + OrderDirection[direction]).onClick(async () => {
-									//@ts-ignore
+									//@ts-ignore — string is a valid sort setting value, TypeScript can't narrow it here
 									this.plugin.settings.sortTypeTag = newSetting;
 									await this.plugin.saveSettings();
 								});
-								if (newSetting == this.plugin.settings.sortTypeTag) {
+								if (newSetting === this.plugin.settings.sortTypeTag) {
 									item.setIcon("checkmark");
 								}
 								return item;
@@ -66,11 +66,11 @@ export abstract class TagFolderViewBase extends ItemView {
 							menu2.addItem((item) => {
 								const newSetting = `${key}_${direction}`;
 								item.setTitle(OrderKeyItem[key] + " " + OrderDirection[direction]).onClick(async () => {
-									//@ts-ignore
+									//@ts-ignore — string is a valid sort setting value, TypeScript can't narrow it here
 									this.plugin.settings.sortType = newSetting;
 									await this.plugin.saveSettings();
 								});
-								if (newSetting == this.plugin.settings.sortType) {
+								if (newSetting === this.plugin.settings.sortType) {
 									item.setIcon("checkmark");
 								}
 								return item;
@@ -87,7 +87,7 @@ export abstract class TagFolderViewBase extends ItemView {
 	abstract getViewType(): string;
 
 	showMenu(evt: MouseEvent, trail: string[], targetTag?: string, targetItems?: ViewItem[]) {
-		const isTagTree = this.getViewType() == VIEW_TYPE_TAGFOLDER;
+		const isTagTree = this.getViewType() === VIEW_TYPE_TAGFOLDER;
 		const menu = new Menu();
 		if (isTagTree) {
 			const expandedTagsAll = ancestorToLongestTag(
@@ -172,7 +172,7 @@ export abstract class TagFolderViewBase extends ItemView {
 				}
 			}
 		}
-		if (!targetTag && targetItems && targetItems.length == 1) {
+		if (!targetTag && targetItems && targetItems.length === 1) {
 			const path = targetItems[0].path;
 			const file = this.app.vault.getAbstractFileByPath(path);
 			// Trigger
@@ -213,9 +213,9 @@ export abstract class TagFolderViewBase extends ItemView {
 			menu.showAtPosition({ x: evt.pageX, y: evt.pageY });
 		} else {
 			menu.showAtPosition({
-				// @ts-ignore
+				// @ts-ignore — nativeEvent exists in the mobile Obsidian environment
 				x: evt.nativeEvent.locationX,
-				// @ts-ignore
+				// @ts-ignore — nativeEvent exists in the mobile Obsidian environment
 				y: evt.nativeEvent.locationY,
 			});
 		}

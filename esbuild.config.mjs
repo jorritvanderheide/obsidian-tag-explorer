@@ -87,9 +87,9 @@ const plugins = [
 		setup(build) {
 			build.onEnd(async (result) => {
 				if (prod) {
-					console.log("tersering...");
+					console.log("minifying...");
 					const src = fs.readFileSync("./main_org.js").toString();
-					// @ts-ignore
+					// @ts-ignore — terser types are not included in this project
 					const ret = await minify(src, terserOpt);
 					if (ret && ret.code) {
 						fs.writeFileSync("./main.js", ret.code);
@@ -97,7 +97,7 @@ const plugins = [
 				} else {
 					fs.copyFileSync("./main_org.js", "./main.js");
 				}
-				console.log("tersered...");
+				console.log("done.");
 				if (PATH_TEST_INSTALL) {
 					for (const installPath of PATH_TEST_INSTALL) {
 						const realPath = path.resolve(installPath);

@@ -43,7 +43,7 @@
 		showOrder,
 	}: Props = $props();
 
-	const isMainTree = $derived(tags.length == 0);
+	const isMainTree = $derived(tags.length === 0);
 
 	let updatedFiles = $state([] as string[]);
 	appliedFiles.subscribe(async (filenames) => {
@@ -336,7 +336,7 @@
 			<div
 				class="search-input-clear-button"
 				aria-label="Clear search"
-				style="display:{$searchString.trim() == '' ? 'none' : ''};"
+				style="display:{$searchString.trim() === '' ? 'none' : ''};"
 				onclick={clearSearch}
 			></div>
 		</div>

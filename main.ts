@@ -85,7 +85,7 @@ function getCompareMethodItems(settings: TagFolderSettings) {
 
 // Thank you @pjeby!
 function onElement<T extends HTMLElement | Document>(el: T, event: string, selector: string, callback: CallableFunction, options: EventListenerOptions) {
-	//@ts-ignore
+	//@ts-ignore — Obsidian extends HTMLElement with .on()/.off() for event delegation
 	el.on(event, selector, callback, options)
 	//@ts-ignore
 	return () => el.off(event, selector, callback, options);
@@ -119,7 +119,7 @@ export default class TagFolderPlugin extends Plugin {
 	}
 	// Called when item clicked in the tag folder pane.
 	readonly focusFile = (path: string, specialKey: boolean): void => {
-		if (this.currentOpeningFile == path) return;
+		if (this.currentOpeningFile === path) return;
 		const _targetFile = this.app.vault.getAbstractFileByPath(path);
 		const targetFile = (_targetFile instanceof TFile) ? _targetFile : this.app.vault
 			.getFiles()
@@ -158,7 +158,7 @@ export default class TagFolderPlugin extends Plugin {
 			if (d) return `${d}`;
 		}
 		if (metadata?.headings) {
-			const h1 = metadata.headings.find((e) => e.level == 1);
+			const h1 = metadata.headings.find((e) => e.level === 1);
 			if (h1) {
 				return h1.heading;
 			}
@@ -168,17 +168,17 @@ export default class TagFolderPlugin extends Plugin {
 
 	getDisplayName(file: TFile): string {
 		const filename = this.getFileTitle(file) || file.basename;
-		if (this.settings.displayMethod == "NAME") {
+		if (this.settings.displayMethod === "NAME") {
 			return filename;
 		}
 		const path = file.path.split("/");
 		path.pop();
 		const displayPath = path.join("/");
 
-		if (this.settings.displayMethod == "NAME : PATH") {
+		if (this.settings.displayMethod === "NAME : PATH") {
 			return `${filename} : ${displayPath}`;
 		}
-		if (this.settings.displayMethod == "PATH/NAME") {
+		if (this.settings.displayMethod === "PATH/NAME") {
 			return `${displayPath}/${filename}`;
 		}
 		return filename;
@@ -227,7 +227,6 @@ export default class TagFolderPlugin extends Plugin {
 		});
 		this.metadataCacheChanged = this.metadataCacheChanged.bind(this);
 		this.watchWorkspaceOpen = this.watchWorkspaceOpen.bind(this);
-		this.loadFileInfo = this.loadFileInfo.bind(this);
 		this.registerEvent(
 			this.app.metadataCache.on("changed", this.metadataCacheChanged)
 		);
@@ -262,13 +261,13 @@ export default class TagFolderPlugin extends Plugin {
 					if (this.searchString.match(regExpTagStr)) {
 						this.setSearchString(this.searchString.replace(regExpTagStr, ""));
 					} else if (!this.searchString.match(regExpTagStrInv)) {
-						this.setSearchString(this.searchString + (this.searchString.length == 0 ? "" : " ") + `-${tagString}`);
+						this.setSearchString(this.searchString + (this.searchString.length === 0 ? "" : " ") + `-${tagString}`);
 					}
 				} else if (event.ctrlKey) {
 					if (this.searchString.match(regExpTagStrInv)) {
 						this.setSearchString(this.searchString.replace(regExpTagStrInv, ""));
 					} else if (!this.searchString.match(regExpTagStr)) {
-						this.setSearchString(this.searchString + (this.searchString.length == 0 ? "" : " ") + `${tagString}`);
+						this.setSearchString(this.searchString + (this.searchString.length === 0 ? "" : " ") + `${tagString}`);
 					}
 				} else {
 					this.setSearchString(tagString);
@@ -379,7 +378,6 @@ export default class TagFolderPlugin extends Plugin {
 				while (!enumTags.classList.contains("cm-hashtag-begin")) {
 					enumTags = enumTags.previousElementSibling;
 					if (!enumTags) {
-						console.log("Error! start tag not found.");
 						return;
 					}
 				}
@@ -444,7 +442,7 @@ export default class TagFolderPlugin extends Plugin {
 		};
 	}
 	updateFileCachesAll(): boolean {
-		const filesAll = [...this.app.vault.getMarkdownFiles(), ...this.app.vault.getAllLoadedFiles().filter(e => "extension" in e && e.extension == "canvas") as TFile[]];
+		const filesAll = [...this.app.vault.getMarkdownFiles(), ...this.app.vault.getAllLoadedFiles().filter(e => "extension" in e && e.extension === "canvas") as TFile[]];
 		const caches = filesAll.map(entry => this.getFileCacheData(entry)).filter(e => e !== false)
 		this.fileCaches = [...caches];
 		return this.isFileCacheChanged();
@@ -456,7 +454,7 @@ export default class TagFolderPlugin extends Plugin {
 				tags: e.tags,
 			}))
 		);
-		if (this.oldFileCache == fileCacheDump) {
+		if (this.oldFileCache === fileCacheDump) {
 			return false;
 		} else {
 			this.oldFileCache = fileCacheDump;
@@ -468,7 +466,7 @@ export default class TagFolderPlugin extends Plugin {
 	updateFileCaches(diffs: (TFile | undefined)[] = []): boolean {
 		let anyUpdated = false;
 
-		if (this.fileCaches.length == 0 || diffs.length == 0) {
+		if (this.fileCaches.length === 0 || diffs.length === 0) {
 			return this.updateFileCachesAll();
 		} else {
 			const processDiffs = [...diffs];
@@ -479,7 +477,7 @@ export default class TagFolderPlugin extends Plugin {
 				if (!procDiff) break;
 				// Find old one and remove if exist once.
 				const old = newCaches.find(
-					(fileCache) => fileCache.file.path == procDiff.path
+					(fileCache) => fileCache.file.path === procDiff.path
 				);
 
 				if (old) {
@@ -547,10 +545,10 @@ export default class TagFolderPlugin extends Plugin {
 			await doEvents();
 			const allTagsDocs = unique(fileCache.tags);
 			let allTags = unique(allTagsDocs.map((e) => e.substring(1)));
-			if (allTags.length == 0) {
+			if (allTags.length === 0) {
 				allTags = ["_untagged"];
 			}
-			if (fileCache.file.extension == "canvas") {
+			if (fileCache.file.extension === "canvas") {
 				allTags.push("_VIRTUAL_TAG_CANVAS")
 			}
 	
@@ -565,7 +563,7 @@ export default class TagFolderPlugin extends Plugin {
 			// filter the items
 			const w = searchItems.map((searchItem) => {
 				let bx = false;
-				if (allTags.length == 0) return false;
+				if (allTags.length === 0) return false;
 				for (const searchSrc of searchItem) {
 					let search = searchSrc;
 					let func = "contains" as "contains" | "startsWith";
@@ -702,19 +700,14 @@ export default class TagFolderPlugin extends Plugin {
 			await this.loadFileInfos([]);
 			return;
 		}
-		if (diff && this.loadFileQueue.some(e => e.path == diff?.path)) {
-			//console.log(`LoadFileInfo already in queue:${diff?.path}`)
-		} else {
+		if (!this.loadFileQueue.some(e => e.path === diff?.path)) {
 			this.loadFileQueue.push(diff);
-			//console.log(`LoadFileInfo queued:${diff.path}`);
 		}
 		if (this.loadFileTimer) {
 			clearTimeout(this.loadFileTimer);
 		}
 		this.loadFileTimer = setTimeout(() => {
-			if (this.loadFileQueue.length === 0) {
-				// console.log(`No need to LoadFile`);
-			} else {
+			if (this.loadFileQueue.length > 0) {
 				const diffs = [...this.loadFileQueue];
 				this.loadFileQueue = [];
 				void this.loadFileInfos(diffs);
@@ -730,7 +723,7 @@ export default class TagFolderPlugin extends Plugin {
 
 	async _initTagView() {
 		const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_TAGFOLDER);
-		if (leaves.length == 0) {
+		if (leaves.length === 0) {
 			await this.app.workspace.getLeftLeaf(false)?.setViewState({
 				type: VIEW_TYPE_TAGFOLDER,
 				state: { treeViewType: "tags" }
@@ -800,7 +793,7 @@ export default class TagFolderPlugin extends Plugin {
 			.join(" ")
 			.trim();
 
-		//@ts-ignore
+		//@ts-ignore — createAndOpenMarkdownFile is an internal Obsidian API
 		const ww = await this.app.fileManager.createAndOpenMarkdownFile() as TFile;
 		if (this.settings.useFrontmatterTagsForNewNotes) {
 			await this.app.fileManager.processFrontMatter(ww, (matter) => {
@@ -867,7 +860,7 @@ class TagFolderSettingTab extends PluginSettingTab {
 			const oldSetting = this.plugin.settings.sortType.split("_");
 			if (!key) key = oldSetting[0];
 			if (!order) order = oldSetting[1];
-			//@ts-ignore
+			//@ts-ignore — string is a valid sortType value, TypeScript can't narrow it here
 			this.plugin.settings.sortType = `${key}_${order}`;
 			await this.plugin.saveSettings();
 			// this.plugin.setRoot(this.plugin.root);
@@ -928,7 +921,7 @@ class TagFolderSettingTab extends PluginSettingTab {
 			const oldSetting = this.plugin.settings.sortTypeTag.split("_");
 			if (!key) key = oldSetting[0];
 			if (!order) order = oldSetting[1];
-			//@ts-ignore
+			//@ts-ignore — string is a valid sortTypeTag value, TypeScript can't narrow it here
 			this.plugin.settings.sortTypeTag = `${key}_${order}`;
 			await this.plugin.saveSettings();
 			// this.plugin.setRoot(this.plugin.root);
@@ -970,9 +963,9 @@ class TagFolderSettingTab extends PluginSettingTab {
 					.setValue(this.plugin.settings.hideItems)
 					.onChange(async (key) => {
 						if (
-							key == "NONE" ||
-							key == "DEDICATED_INTERMIDIATES" ||
-							key == "ALL_EXCEPT_BOTTOM"
+							key === "NONE" ||
+							key === "DEDICATED_INTERMIDIATES" ||
+							key === "ALL_EXCEPT_BOTTOM"
 						) {
 							this.plugin.settings.hideItems = key;
 						}
