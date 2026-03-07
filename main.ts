@@ -42,6 +42,7 @@ import {
 	trimTrailingSlash,
 	isSpecialTag,
 	trimPrefix,
+	matchesArchiveTag,
 } from "./util";
 import { TagFolderView } from "./TagFolderView";
 
@@ -644,7 +645,9 @@ export default class TagFolderPlugin extends Plugin {
 			// 	allTags = mergeSameParents(allTags);
 			// }
 
-			const archiveTagsMatched = allTags.filter(e => archiveTags.contains(e.toLowerCase()));
+			const archiveTagsMatched = allTags.filter(e =>
+				archiveTags.some(a => a !== "" && matchesArchiveTag(e.toLowerCase(), a))
+			);
 			if (archiveTagsMatched.length > 0) {
 				allTags = archiveTagsMatched;
 			}

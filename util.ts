@@ -269,6 +269,18 @@ export function joinPartialPath(path: string[]) {
 	return path.reduce((p, c) => (c.endsWith("/") && p.length > 0) ? [c + p[0], ...p.slice(1)] : [c, ...p], [] as string[]);
 }
 
+/**
+ * Returns true if `tag` matches archive `pattern` by any of:
+ *   - exact:     "inbox"      matches "inbox"
+ *   - namespace: "type"       matches "type/inbox", "type/book"
+ *   - leaf:      "inbox"      matches "type/inbox", "project/inbox"
+ * Both arguments should already be lower-cased.
+ */
+export function matchesArchiveTag(tag: string, pattern: string): boolean {
+	if (!pattern) return false;
+	return tag === pattern || tag.startsWith(pattern + "/") || tag.endsWith("/" + pattern);
+}
+
 export function pathMatch(haystackLC: string, needleLC: string) {
 	if (haystackLC == needleLC) return true;
 	if (needleLC[needleLC.length - 1] == "/") {

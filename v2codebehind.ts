@@ -11,6 +11,7 @@ import {
 	V2FI_IDX_TAGDISP,
 	waitForRequestAnimationFrame,
 	getRootNamespace,
+	matchesArchiveTag,
 } from "./util";
 
 function delay() {
@@ -144,17 +145,22 @@ export async function collectTreeChildren({
 			// Remove all items which have been already archived except is on the root.
 
 			const archiveTags = _setting.archiveTags.toLowerCase().replace(/[\n ]/g, "").split(",");
+			const itemMatchesAnyArchive = (item: ViewItem) =>
+				item.tags.some(tag => archiveTags.some(a => a !== "" && matchesArchiveTag(tag.toLowerCase(), a)));
 			wChildren = wChildren
 				.map((e) =>
-					archiveTags.some((aTag) => `${aTag}//`.startsWith(e[V2FI_IDX_TAG].toLowerCase() + "/"))
+					archiveTags.some((aTag) =>
+						aTag !== "" && (
+							`${aTag}//`.startsWith(e[V2FI_IDX_TAG].toLowerCase() + "/") ||
+							e[V2FI_IDX_CHILDREN].some(item => item.tags.some(t => matchesArchiveTag(t.toLowerCase(), aTag)))
+						)
+					)
 						? e
 						: ([
 								e[V2FI_IDX_TAG],
 								e[V2FI_IDX_TAGNAME],
 								e[V2FI_IDX_TAGDISP],
-								e[V2FI_IDX_CHILDREN].filter(
-									(items) => !items.tags.some((e) => archiveTags.contains(e.toLowerCase()))
-								),
+								e[V2FI_IDX_CHILDREN].filter(item => !itemMatchesAnyArchive(item)),
 							] as V2FolderItem)
 				)
 				.filter((child) => child[V2FI_IDX_CHILDREN].length != 0);
