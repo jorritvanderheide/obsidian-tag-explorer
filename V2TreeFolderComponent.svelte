@@ -258,6 +258,16 @@
 
     // <-- Where were this tag shown?
 
+    // A cross-namespace folder injected as a filter/narrowing option (guard OFF).
+    // Detected by comparing this folder's root namespace against the trail root.
+    const isFilterFolder = $derived(
+        !isRoot &&
+        !_setting.namespacedTagGuard &&
+        trail.length > 0 &&
+        getRootNamespace(thisName) !== "" &&
+        getRootNamespace(thisName) !== getRootNamespace(trail[0]),
+    );
+
     // -->
 
     // All tags in this level (Case insensitively unique)
@@ -522,7 +532,7 @@
     );
 
     $effect(() => {
-        if (isActive && !isRoot) {
+        if (isActive && !isRoot && !isFilterFolder) {
             v2expandedTags.update((set) => {
                 set.add(trailKey);
                 return set;
@@ -562,7 +572,15 @@
     );
     const itemCount = $derived(items.length);
     const leftOverItemsDisp = $derived(splitArrayToBatch(leftOverItemsUnsorted));
-    const childrenDisp = $derived(splitArrayToBatch(children));
+    const [regularChildren, filterChildren] = $derived.by(() => {
+        if (_setting.namespacedTagGuard || isRoot) return [children, [] as typeof children];
+        const ns = getRootNamespace(thisName);
+        const regular = children.filter(c => getRootNamespace(c[V2FI_IDX_TAG]) === ns);
+        const filter = children.filter(c => getRootNamespace(c[V2FI_IDX_TAG]) !== ns);
+        return [regular, filter];
+    });
+    const childrenDisp = $derived(splitArrayToBatch(regularChildren));
+    const filterChildrenDisp = $derived(splitArrayToBatch(filterChildren));
 
 
     // -- Folder mark icon ---
@@ -629,7 +647,7 @@
         <OnDemandRender
             cssClass={`tree-item-self${
                 !isRoot ? " is-clickable mod-collapsible" : ""
-            } nav-folder-title tag-folder-title`}
+            } nav-folder-title tag-folder-title${isFilterFolder ? " tf-filter-folder" : ""}`}
             bind:isVisible={isFolderVisible}
         >
             <!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -638,7 +656,9 @@
                 onclick={toggleFolder}
             >
                 {#if isFolderVisible}
-                    {#if _setting.tagIcons?.[tagName]}
+                    {#if isFilterFolder}
+                        <div use:folderMarkAction={"lucide-hash"} class="tagfolder-folder-mark"></div>
+                    {:else if _setting.tagIcons?.[tagName]}
                         <div use:folderMarkAction={_setting.tagIcons![tagName]} class="tagfolder-folder-mark"></div>
                     {:else if collapsed}
                         {@html folderIcon}
@@ -673,8 +693,8 @@
     {/if}
     <!-- Tags and leftover items -->
     {#if !collapsed}
-        {#snippet treeContent(childrenDisp: V2FolderItem[][], leftOverItemsDisp:ViewItem[][])}
-            {#each childrenDisp as items}
+        {#snippet folderList(batch: V2FolderItem[][])}
+            {#each batch as items}
                 {#each items as [f, tagName, tagNameDisp, subitems]}
                 <V2TreeFolderComponent
                     items={subitems}
@@ -692,8 +712,11 @@
                     {tagNameDisp}
                     depth={isInDedicatedTag ? depth : depth + 1}
                 />
+                {/each}
             {/each}
-            {/each}
+        {/snippet}
+        {#snippet treeContent(childrenDisp: V2FolderItem[][], leftOverItemsDisp:ViewItem[][], filterChildrenDisp: V2FolderItem[][])}
+            {@render folderList(childrenDisp)}
             {#each leftOverItemsDisp as items}
                 {#each items as item}
                     <TreeItemItemComponent
@@ -708,13 +731,14 @@
                     />
                 {/each}
             {/each}
+            {@render folderList(filterChildrenDisp)}
         {/snippet}
         {#if !isRoot}
             <div class="tree-item-children nav-folder-children">
-                {@render treeContent(childrenDisp, leftOverItemsDisp)}
+                {@render treeContent(childrenDisp, leftOverItemsDisp, filterChildrenDisp)}
             </div>
         {:else}
-            {@render treeContent(childrenDisp, leftOverItemsDisp)}
+            {@render treeContent(childrenDisp, leftOverItemsDisp, filterChildrenDisp)}
         {/if}
     {/if}
 </div>

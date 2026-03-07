@@ -158,6 +158,14 @@
 	background: var(--background-modifier-hover);
 }
 
+.nav-folder-title.tf-filter-folder {
+	opacity: 0.55;
+}
+
+.nav-folder-title.tf-filter-folder:hover {
+	opacity: 1;
+}
+
 .tree-item.nav-folder.updating {
 	background: linear-gradient(135deg, var(--interactive-accent-hover) 0%, var(--interactive-accent-hover) 50%, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0) 100%);
 	background-repeat: no-repeat;
