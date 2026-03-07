@@ -1,9 +1,9 @@
 {
-	"id": "tag-folder-plus",
-	"name": "Tag Folder Plus",
-	"version": "1.0.5",
+	"id": "tag-explorer",
+	"name": "Tag Explorer",
+	"version": "1.1.0",
 	"minAppVersion": "0.12.0",
-	"description": "Show nested tags as a strict folder hierarchy",
+	"description": "Navigate your vault through a tag-generated folder tree.",
 	"author": "Jorrit van der Heide",
 	"authorUrl": "https://github.com/jorritvanderheide",
 	"isDesktopOnly": false

@@ -24,7 +24,7 @@ export class TagFolderView extends TagFolderViewBase {
 	}
 
 	getDisplayText() {
-		return "Tag Folder Plus";
+		return "Tag Explorer";
 	}
 
 	async onOpen() {

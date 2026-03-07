@@ -1,7 +1,7 @@
 {
-	"name": "tag-folder-plus",
-	"version": "1.0.5",
-	"description": "Show tags as folder",
+	"name": "obsidian-tag-explorer",
+	"version": "1.1.0",
+	"description": "Navigate your vault through a tag-generated folder tree.",
 	"main": "main.js",
 	"type": "module",
 	"scripts": {

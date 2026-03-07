@@ -1,8 +1,8 @@
-# Tag Folder Plus
+# Tag Explorer
 
 > **A fork of [TagFolder](https://github.com/vrtmrz/obsidian-tagfolder) by vorotamoroz.**
 
-Browse your vault through its (nested) tags. Each tag namespace (`domain/`, `source/`, `status/`, …) becomes an independent folder tree. A note tagged `#domain/coding` and `#source/book` appears under *both* `domain/coding` and `source/book` simultaneously — the same file in two places at once, like a symlink.
+Navigate your vault through a tag-generated folder tree. Each tag namespace (`domain/`, `source/`, `status/`, …) becomes an independent folder tree. A note tagged `#domain/coding` and `#source/book` appears under *both* `domain/coding` and `source/book` simultaneously — the same file in two places at once, like a symlink.
 
 ```
 Meeting notes : #domain/work    #status/active
@@ -42,9 +42,9 @@ status/
 
 ## Installation
 
-Install manually by copying `main.js` and `manifest.json` into `.obsidian/plugins/tag-folder-plus/`, then enable it in Settings → Community plugins.
+Install manually by copying `main.js` and `manifest.json` into `.obsidian/plugins/tag-explorer/`, then enable it in Settings → Community plugins.
 
-Once installed, open the tag tree via `Ctrl+P` → *Show Tag Folder Plus*, or enable *Open on startup* in settings.
+Once installed, open the tag tree via `Ctrl+P` → *Show Tag Explorer*, or enable *Open on startup* in settings.
 
 ## Toolbar
 
@@ -94,8 +94,8 @@ Type in the search bar to filter the tree. Matches are evaluated against tag nam
 
 **Hide files** — Control which files are hidden inside intermediate (non-leaf) tag folders:
 - *Hide nothing* — files appear at every level.
-- *Only intermediates of nested tags* — files are hidden inside nested tag levels (default).
-- *All intermediates* — files only appear at the deepest level.
+- *Only intermediates of nested tags* — files are hidden inside nested tag levels.
+- *All intermediates* — files only appear at the deepest level (default).
 
 **Isolate sub-folders by namespace** — When inside a tag folder, only show sub-folders from the same root namespace. Also togglable from the toolbar.
 

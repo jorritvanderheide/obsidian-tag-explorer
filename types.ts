@@ -51,13 +51,13 @@ export const DEFAULT_SETTINGS: TagFolderSettings = {
 	ignoreTags: "",
 	sortType: "MTIME_DESC",
 	sortTypeTag: "NAME_ASC",
-	hideItems: "DEDICATED_INTERMIDIATES",
+	hideItems: "ALL_EXCEPT_BOTTOM",
 	ignoreFolders: "",
 	targetFolders: "",
 	scanDelay: 250,
 	useTitle: true,
 	frontmatterKey: "title",
-	namespacedTagGuard: true,
+	namespacedTagGuard: false,
 	useFrontmatterTagsForNewNotes: false,
 	doNotSimplifyTags: true,
 	overrideTagClicking: false,
@@ -74,7 +74,7 @@ export const tagDispDict: { [key: string]: string } = {
 	_VIRTUAL_TAG_CANVAS: "📋 Canvas",
 };
 
-export const VIEW_TYPE_TAGFOLDER = "tagfolder-view";
+export const VIEW_TYPE_TAGFOLDER = "tag-explorer-view";
 
 export const OrderKeyTag: Record<string, string> = {
 	NAME: "Tag name",

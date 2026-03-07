@@ -9,7 +9,6 @@
 		"noImplicitAny": true,
 		"moduleResolution": "node",
 		"types": ["svelte", "node"],
-		// "importsNotUsedAsValues": "error",
 		"importHelpers": false,
         "alwaysStrict": true,
         "lib": [

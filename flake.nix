@@ -1,5 +1,5 @@
 {
-  description = "Tag Folder Plus Obsidian plugin (fork of TagFolder)";
+  description = "Tag Explorer Obsidian plugin (fork of TagFolder)";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -16,8 +16,8 @@
       {
         # Production build
         packages.default = pkgs.buildNpmPackage {
-          pname = "obsidian-tagfolder-plus";
-          version = "0.18.13";
+          pname = "obsidian-tag-explorer";
+          version = "1.0.6";
 
           src = ./.;
 
@@ -46,9 +46,8 @@
           ];
 
           shellHook = ''
-            echo "TagFolder Plus dev environment"
+            echo "Tag Explorer dev environment"
             echo "  npm install   — install dependencies"
-            echo "  npm run dev   — watch build (set PATHS_TEST_INSTALL to auto-copy)"
             echo "  npm run build — production build"
           '';
         };

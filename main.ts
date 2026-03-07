@@ -212,14 +212,14 @@ export default class TagFolderPlugin extends Plugin {
 			}
 		});
 		this.addCommand({
-			id: "tagfolder-open",
-			name: "Show Tag Folder Plus",
+			id: "open",
+			name: "Show Tag Explorer",
 			callback: () => {
 				void this.activateView();
 			},
 		});
 		this.addCommand({
-			id: "tagfolder-rebuild-tree",
+			id: "rebuild-tree",
 			name: "Force Rebuild",
 			callback: () => {
 				this.refreshAllTree();
