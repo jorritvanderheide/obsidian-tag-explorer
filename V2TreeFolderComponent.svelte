@@ -23,6 +23,7 @@
         scheduleOnceIfDuplicated,
         isSameAny,
         getRootNamespace,
+        matchesArchiveTag,
     } from "./util";
     import {
         currentFile,
@@ -324,6 +325,57 @@
                                 const otherRoot = getRootNamespace(lc);
                                 return otherRoot ? [otherRoot + "/"] : [];
                             }));
+                            // Remove cross-NS tags that provide no navigation value.
+                            // A namespace is useful when clicking it either narrows the
+                            // item count, or all items have it but with different subtags
+                            // (so sub-navigation is meaningful). Suppress only when every
+                            // item shares the exact same specific subtag (zero benefit).
+                            tagsAll = tagsAll.filter((tag) => {
+                                const lc = tag.toLowerCase();
+                                if (lc === rootNS || lc.startsWith(rootNS + "/")) return true;
+                                const ns = getRootNamespace(lc);
+                                if (!ns) return false;
+                                const itemsWithNS = items.filter((item) =>
+                                    item.tags.some((t) => getRootNamespace(t.toLowerCase()) === ns),
+                                );
+                                if (itemsWithNS.length < items.length) return true; // narrows set
+                                // All items have this NS — only keep if subtags differ
+                                const distinctSubtags = new Set(
+                                    items.flatMap((item) =>
+                                        item.tags
+                                            .filter((t) => getRootNamespace(t.toLowerCase()) === ns)
+                                            .map((t) => t.toLowerCase()),
+                                    ),
+                                ).size;
+                                return distinctSubtags > 1;
+                            });
+                            // Only show cross-NS tags if there are at least 2 distinct
+                            // namespaces — a single cross-NS namespace offers no filtering value.
+                            // Exclude namespaces that are hidden (ignoreTags) or archived (archiveTags).
+                            const ignoreNS = _setting.ignoreTags
+                                .toLowerCase().replace(/[\n ]/g, "").split(",")
+                                .map((e) => getRootNamespace(e)).filter((e) => e !== "");
+                            const archiveNS = _setting.archiveTags
+                                .toLowerCase().replace(/[\n ]/g, "").split(",")
+                                .filter((e) => e !== "")
+                                .map((e) => getRootNamespace(e));
+                            const crossNSCount = new Set(
+                                tagsAll
+                                    .filter((t) => !t.toLowerCase().startsWith(rootNS))
+                                    .map((t) => getRootNamespace(t.toLowerCase()))
+                                    .filter((ns) => {
+                                        if (ns === "") return false;
+                                        if (ignoreNS.some((ig) => ns === ig || ns.startsWith(ig + "/"))) return false;
+                                        if (archiveNS.some((ar) => ns === ar || matchesArchiveTag(ns, ar))) return false;
+                                        return true;
+                                    }),
+                            ).size;
+                            if (crossNSCount < 1 || items.length <= 1) {
+                                tagsAll = tagsAll.filter((tag) => {
+                                    const lc = tag.toLowerCase();
+                                    return lc === rootNS || lc.startsWith(rootNS + "/");
+                                });
+                            }
                         } else {
                             // Too deep: suppress cross-namespace tags entirely.
                             tagsAll = tagsAll.filter((tag) => {
