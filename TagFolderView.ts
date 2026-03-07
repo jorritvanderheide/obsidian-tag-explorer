@@ -21,7 +21,6 @@ export class TagFolderView extends TagFolderViewBase {
 		this.plugin = plugin;
 		this.showMenu = this.showMenu.bind(this);
 		this.showOrder = this.showOrder.bind(this);
-		this.showLevelSelect = this.showLevelSelect.bind(this);
 		this.treeViewType = viewType;
 		// this.setState({ viewType: this.viewType, type: this.getViewType() }, {});
 	}
@@ -43,7 +42,6 @@ export class TagFolderView extends TagFolderViewBase {
 				hoverPreview: (a: MouseEvent, b: string) => this.plugin.hoverPreview(a, b),
 				vaultName: this.app.vault.getName(),
 				showMenu: this.showMenu,
-				showLevelSelect: this.showLevelSelect,
 				showOrder: this.showOrder,
 				saveSettings: this.saveSettings.bind(this),
 			},

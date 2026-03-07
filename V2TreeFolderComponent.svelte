@@ -88,10 +88,6 @@
 
     // Watch them to realise the configurations to display immediately
     let _setting = $derived($tagFolderSetting as TagFolderSettings);
-    const expandLimit = $derived(
-        !_setting.expandLimit ? 0 : _setting.expandLimit,
-    );
-
     // To Highlight active things.
     const _currentActiveFilePath = $derived($currentFile);
 
@@ -268,6 +264,22 @@
         getRootNamespace(thisName) !== getRootNamespace(trail[0]),
     );
 
+    // How many cross-namespace hops have been made in the trail so far.
+    // Used to limit filter folder recursion depth.
+    const filterNestingDepth = $derived.by(() => {
+        if (trail.length === 0) return 0;
+        let depth = 0;
+        let prevNS = getRootNamespace(trail[0]);
+        for (const t of trail) {
+            const ns = getRootNamespace(t.replace(/\*/g, "/").toLowerCase());
+            if (ns !== "" && ns !== prevNS) {
+                depth++;
+                prevNS = ns;
+            }
+        }
+        return depth;
+    });
+
     // -->
 
     // All tags in this level (Case insensitively unique)
@@ -300,15 +312,25 @@
                         });
                     } else {
                         // Guard OFF: same-namespace tags pass through; cross-namespace
-                        // tags are collapsed to their root prefix (e.g., source/ai → source/).
-                        tagsAll = uniqueCaseIntensive(tagsAll.flatMap((tag) => {
-                            const lc = tag.toLowerCase();
-                            if (lc === rootNS || lc.startsWith(rootNS + "/")) {
-                                return [tag];
-                            }
-                            const otherRoot = getRootNamespace(lc);
-                            return otherRoot ? [otherRoot + "/"] : [];
-                        }));
+                        // tags appear only if we haven't exceeded filterFolderDepth hops.
+                        const maxHops = _setting.filterFolderDepth ?? 1;
+                        const allowCrossNS = maxHops === 0 || filterNestingDepth < maxHops;
+                        if (allowCrossNS) {
+                            tagsAll = uniqueCaseIntensive(tagsAll.flatMap((tag) => {
+                                const lc = tag.toLowerCase();
+                                if (lc === rootNS || lc.startsWith(rootNS + "/")) {
+                                    return [tag];
+                                }
+                                const otherRoot = getRootNamespace(lc);
+                                return otherRoot ? [otherRoot + "/"] : [];
+                            }));
+                        } else {
+                            // Too deep: suppress cross-namespace tags entirely.
+                            tagsAll = tagsAll.filter((tag) => {
+                                const lc = tag.toLowerCase();
+                                return lc === rootNS || lc.startsWith(rootNS + "/");
+                            });
+                        }
                     }
                 }
             }
@@ -454,7 +476,7 @@
 
     const tags = $derived.by(() => {
         let tags = [] as string[];
-        if (!isMainTree || (expandLimit && depth >= expandLimit)) return tags;
+        if (!isMainTree) return tags;
 
         if (previousTrail.endsWith("/")) {
             const existTagsFiltered4 = [] as string[];
@@ -615,8 +637,6 @@
         const sortFunc = selectCompareMethodTags(_setting);
         const param = {
             key,
-            expandLimit,
-            depth,
             tags,
             keepFolderTags: crossNSTags,
             trailLower,

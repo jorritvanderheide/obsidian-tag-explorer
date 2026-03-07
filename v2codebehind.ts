@@ -62,8 +62,6 @@ export async function collectChildren(
 
 export async function collectTreeChildren({
 	key,
-	expandLimit,
-	depth,
 	tags,
 	keepFolderTags,
 	trailLower,
@@ -76,8 +74,6 @@ export async function collectTreeChildren({
 	sortFunc,
 }: {
 	key: string;
-	expandLimit: number;
-	depth: number;
 	tags: string[];
 	keepFolderTags?: string[];
 	trailLower: string[];
@@ -91,12 +87,7 @@ export async function collectTreeChildren({
 }): Promise<{ suppressLevels: string[]; children: V2FolderItem[] }> {
 	let suppressLevels: string[] = []; // This will be shown as chip.
 	let children: V2FolderItem[] = [];
-	if (expandLimit && depth >= expandLimit) {
-		// If expand limit had been configured and we have reached it,
-		// suppress sub-folders and show that information as extraTags.
-		children = [];
-		suppressLevels = getExtraTags(tags, trailLower);
-	} else if (!isMainTree) {
+	if (!isMainTree) {
 		// If not in main tree, suppress sub-folders.
 		children = [];
 	} else if (isSuppressibleLevel) {

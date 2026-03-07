@@ -9,7 +9,6 @@ import {
 	type TagFolderSettings,
 	type ViewItem,
 } from "./types";
-import { maxDepth } from "./store";
 import {
 	ancestorToLongestTag,
 	ancestorToTags,
@@ -80,35 +79,6 @@ export abstract class TagFolderViewBase extends ItemView {
 					}
 					menu2.showAtPosition({ x: evt.x, y: evt.y });
 				});
-			return item;
-		});
-		menu.showAtMouseEvent(evt);
-	}
-
-	showLevelSelect(evt: MouseEvent) {
-		const menu = new Menu();
-		const setLevel = async (level: number) => {
-			this.plugin.settings.expandLimit = level;
-			await this.plugin.saveSettings();
-			maxDepth.set(level);
-		};
-		for (const level of [2, 3, 4, 5]) {
-			menu.addItem((item) => {
-				item.setTitle(`Level ${level - 1}`).onClick(() => {
-					void setLevel(level);
-				});
-				if (this.plugin.settings.expandLimit == level) item.setIcon("checkmark");
-				return item;
-			});
-		}
-
-		menu.addItem((item) => {
-			item.setTitle("No limit")
-				.onClick(() => {
-					void setLevel(0);
-				});
-			if (this.plugin.settings.expandLimit == 0) item.setIcon("checkmark");
-
 			return item;
 		});
 		menu.showAtMouseEvent(evt);

@@ -32,8 +32,6 @@ export interface TagFolderSettings {
 	"FULLPATH_ASC" |
 	"FULLPATH_DESC";
 	sortTypeTag: "NAME_ASC" | "NAME_DESC" | "ITEMS_ASC" | "ITEMS_DESC";
-	expandLimit: number;
-
 	hideItems: HIDE_ITEMS_TYPE;
 	scanDelay: number;
 	useTitle: boolean;
@@ -48,6 +46,7 @@ export interface TagFolderSettings {
 	pinnedFolders: string[];
 	tagIcons: Record<string, string>;
 	showItemCount: boolean;
+	filterFolderDepth: number;
 }
 
 export const DEFAULT_SETTINGS: TagFolderSettings = {
@@ -57,7 +56,6 @@ export const DEFAULT_SETTINGS: TagFolderSettings = {
 	ignoreTags: "",
 	sortType: "MTIME_DESC",
 	sortTypeTag: "NAME_ASC",
-	expandLimit: 0,
 	hideItems: "DEDICATED_INTERMIDIATES",
 	ignoreFolders: "",
 	targetFolders: "",
@@ -74,6 +72,7 @@ export const DEFAULT_SETTINGS: TagFolderSettings = {
 	pinnedFolders: [],
 	tagIcons: {},
 	showItemCount: false,
+	filterFolderDepth: 1,
 };
 
 export const tagDispDict: { [key: string]: string } = {

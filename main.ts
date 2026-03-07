@@ -28,7 +28,7 @@ import {
 	type ViewItem,
 	type FileCache,
 } from "types";
-import { allViewItems, appliedFiles, currentFile, maxDepth, pluginInstance, searchString, tagFolderSetting } from "store";
+import { allViewItems, appliedFiles, currentFile, pluginInstance, searchString, tagFolderSetting } from "store";
 import {
 	compare,
 	doEvents,
@@ -253,7 +253,6 @@ export default class TagFolderPlugin extends Plugin {
 		this.watchWorkspaceOpen(this.app.workspace.getActiveFile());
 
 		this.addSettingTab(new TagFolderSettingTab(this.app, this));
-		maxDepth.set(this.settings.expandLimit);
 
 		searchString.subscribe((search => {
 			this.searchString = search;

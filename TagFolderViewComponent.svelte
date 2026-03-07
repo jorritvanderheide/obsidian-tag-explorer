@@ -13,7 +13,7 @@
 	} from "./types";
 	import V2TreeFolderComponent from "./V2TreeFolderComponent.svelte";
 	import { onDestroy, onMount } from "svelte";
-	import { setIcon } from "obsidian";
+	import { Menu, setIcon } from "obsidian";
 	import { trimTrailingSlash } from "./util";
 	import { setContext } from "svelte";
 	interface Props {
@@ -29,7 +29,6 @@
 			targetTag?: string,
 			targetItems?: ViewItem[],
 		) => void;
-		showLevelSelect: (evt: MouseEvent) => void;
 		showOrder: (evt: MouseEvent) => void;
 	}
 
@@ -41,7 +40,6 @@
 		tags = $bindable<string[]>([]),
 		saveSettings,
 		showMenu,
-		showLevelSelect,
 		showOrder,
 	}: Props = $props();
 
@@ -83,10 +81,10 @@
 	let folderOpenIcon = $state("");
 	let fileIcon = $state("");
 	let upAndDownArrowsIcon = $state("");
-	let stackedLevels = $state("");
 	let searchIcon = $state("");
 	let closeAllIcon = $state("");
 	let namespaceGuardIcon = $state("");
+	let filterDepthIcon = $state("");
 
 	let observer: IntersectionObserver | undefined;
 
@@ -157,12 +155,12 @@
 			if (isMainTree) {
 				setIcon(iconDivEl, "lucide-sort-asc");
 				upAndDownArrowsIcon = iconDivEl.innerHTML;
-				setIcon(iconDivEl, "stacked-levels");
-				stackedLevels = iconDivEl.innerHTML;
 				setIcon(iconDivEl, "search");
 				searchIcon = iconDivEl.innerHTML;
 				setIcon(iconDivEl, "lucide-filter");
 				namespaceGuardIcon = iconDivEl.innerHTML;
+				setIcon(iconDivEl, "lucide-layers");
+				filterDepthIcon = iconDivEl.innerHTML;
 			}
 			setIcon(iconDivEl, "lucide-chevrons-down-up");
 			closeAllIcon = iconDivEl.innerHTML;
@@ -226,6 +224,26 @@
 	async function toggleNamespaceGuard() {
 		await saveSettings({ ..._setting, namespacedTagGuard: !_setting.namespacedTagGuard });
 	}
+
+	function showFilterDepth(evt: MouseEvent) {
+		const menu = new Menu();
+		const setDepth = async (depth: number) => {
+			await saveSettings({ ..._setting, filterFolderDepth: depth });
+		};
+		for (const depth of [1, 2, 3]) {
+			menu.addItem((item) => {
+				item.setTitle(`Level ${depth}`).onClick(() => void setDepth(depth));
+				if (_setting.filterFolderDepth === depth) item.setIcon("checkmark");
+				return item;
+			});
+		}
+		menu.addItem((item) => {
+			item.setTitle("All levels").onClick(() => void setDepth(0));
+			if (_setting.filterFolderDepth === 0) item.setIcon("checkmark");
+			return item;
+		});
+		menu.showAtMouseEvent(evt);
+	}
 </script>
 
 <div hidden bind:this={iconDivEl}></div>
@@ -240,15 +258,6 @@
 				onclick={showOrder}
 			>
 				{@html upAndDownArrowsIcon}
-			</div>
-			<!-- svelte-ignore a11y_click_events_have_key_events -->
-			<!-- svelte-ignore a11y_no_static_element_interactions -->
-			<div
-				class="clickable-icon nav-action-button"
-				aria-label="Expand limit"
-				onclick={showLevelSelect}
-			>
-				{@html stackedLevels}
 			</div>
 			<!-- svelte-ignore a11y_click_events_have_key_events -->
 			<!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -269,6 +278,17 @@
 				onclick={toggleNamespaceGuard}
 			>
 				{@html namespaceGuardIcon}
+			</div>
+		{/if}
+		{#if isMainTree && !_setting.namespacedTagGuard}
+			<!-- svelte-ignore a11y_click_events_have_key_events -->
+			<!-- svelte-ignore a11y_no_static_element_interactions -->
+			<div
+				class="clickable-icon nav-action-button"
+				aria-label="Filter folder depth"
+				onclick={showFilterDepth}
+			>
+				{@html filterDepthIcon}
 			</div>
 		{/if}
 		{#if isMainTree}
