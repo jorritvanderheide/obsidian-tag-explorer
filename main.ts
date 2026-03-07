@@ -21,7 +21,7 @@ import {
 	type ViewItem,
 	type FileCache,
 } from "types";
-import { allViewItems, appliedFiles, currentFile, pluginInstance, searchString, tagFolderSetting } from "store";
+import { allViewItems, appliedFiles, currentFile, pluginInstance, searchString, tagFolderSetting, v2expandedTags } from "store";
 import {
 	compare,
 	doEvents,
@@ -195,6 +195,11 @@ export default class TagFolderPlugin extends Plugin {
 			true
 		);
 		pluginInstance.set(this);
+		const saveExpandedTags = debounce(async (tags: Set<string>) => {
+			this.expandedTagsCache = [...tags];
+			await this.saveData({ ...this.settings, expandedTags: this.expandedTagsCache });
+		}, 1000, true);
+		this.register(v2expandedTags.subscribe(saveExpandedTags));
 		this.registerView(
 			VIEW_TYPE_TAGFOLDER,
 			(leaf) => new TagFolderView(leaf, this)
@@ -748,23 +753,25 @@ export default class TagFolderPlugin extends Plugin {
 		allViewItems.set(this.allViewItems);
 
 	}
+	expandedTagsCache: string[] = [];
+
 	async loadSettings() {
-		this.settings = Object.assign(
-			{},
-			DEFAULT_SETTINGS,
-			await this.loadData()
-		);
+		const raw = await this.loadData() ?? {};
+		const { expandedTags, ...rest } = raw;
+		this.settings = Object.assign({}, DEFAULT_SETTINGS, rest);
+		if (Array.isArray(expandedTags)) {
+			v2expandedTags.set(new Set(expandedTags));
+			this.expandedTagsCache = expandedTags;
+		}
 		tagFolderSetting.set({ ...this.settings });
 		this.compareItems = getCompareMethodItems(this.settings);
-		// this.compareTags = getCompareMethodTags(this.settings);
 	}
 
 	async saveSettings() {
 		tagFolderSetting.set({ ...this.settings });
 		this.compareItems = getCompareMethodItems(this.settings);
 		void this.refreshAllViewItems(); // (Do not wait for it)
-		await this.saveData(this.settings);
-		// this.compareTags = getCompareMethodTags(this.settings);
+		await this.saveData({ ...this.settings, expandedTags: this.expandedTagsCache });
 	}
 
 	async createNewNote(tags?: string[]) {
