@@ -8,6 +8,11 @@
 	flex-direction: column-reverse;
 }
 
+.nav-file-title.is-selected {
+	background-color: var(--background-modifier-hover);
+	color: var(--text-accent);
+}
+
 .tagfolder-tag::before {
 	all: inherit;
 	color: inherit;

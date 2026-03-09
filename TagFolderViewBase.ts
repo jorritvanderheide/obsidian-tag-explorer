@@ -1,4 +1,6 @@
 import { ItemView, Menu, Notice } from "obsidian";
+import { get } from "svelte/store";
+import { selectedItems, allViewItems } from "./store";
 import { mount } from "svelte";
 import TagFolderPlugin from "./main";
 import {
@@ -89,6 +91,12 @@ export abstract class TagFolderViewBase extends ItemView {
 	showMenu(evt: MouseEvent, trail: string[], targetTag?: string, targetItems?: ViewItem[]) {
 		const isTagTree = this.getViewType() === VIEW_TYPE_TAGFOLDER;
 		const menu = new Menu();
+
+		// Compute multi-select state once, used in both isTagTree and file blocks below
+		const sel = get(selectedItems);
+		const clickedPath = targetItems?.[0]?.path;
+		const isMulti = !targetTag && !!clickedPath && sel.size >= 2 && sel.has(clickedPath);
+
 		if (isTagTree) {
 			const expandedTagsAll = ancestorToLongestTag(
 				ancestorToTags(joinPartialPath(removeIntermediatePath(trail)))
@@ -105,7 +113,15 @@ export abstract class TagFolderViewBase extends ItemView {
 				.join(" ")
 				.trim();
 
-			if (navigator && navigator.clipboard) {
+			// In multi-select, only show "Copy tags" if all selected files share the trail tag
+			const trailTag = expandedTagsAll.at(-1)?.toLowerCase();
+			const allShareTrailTag = !isMulti || (!!trailTag && (get(allViewItems) ?? [])
+				.filter(i => sel.has(i.path))
+				.every(i => i.tags.some(t =>
+					t.toLowerCase() === trailTag || t.toLowerCase().startsWith(trailTag + "/")
+				)));
+
+			if (allShareTrailTag && navigator && navigator.clipboard) {
 				menu.addItem((item) =>
 					item
 						.setTitle(`Copy tags: ${expandedTags}`)
@@ -172,42 +188,60 @@ export abstract class TagFolderViewBase extends ItemView {
 				}
 			}
 		}
-		if (!targetTag && targetItems && targetItems.length === 1) {
-			const path = targetItems[0].path;
-			const file = this.app.vault.getAbstractFileByPath(path);
-			// Trigger
-			this.app.workspace.trigger("file-menu", menu, file, "file-explorer");
-			menu.addSeparator();
-			menu.addItem((item) =>
-				item
-					.setTitle(`Open in new tab`)
-					.setSection("open")
-					.setIcon("lucide-file-plus")
-					.onClick(async () => {
-						await this.app.workspace.openLinkText(path, path, "tab");
-					})
-			);
-			menu.addItem((item) =>
-				item
-					.setTitle(`Open to the right`)
-					.setSection("open")
-					.setIcon("lucide-separator-vertical")
-					.onClick(async () => {
-						await this.app.workspace.openLinkText(path, path, "split");
-					})
-			);
-			menu.addSeparator();
-			menu.addItem((item) =>
-				item
-					.setTitle("Delete")
-					.setIcon("trash")
-					.setWarning(true)
-					.onClick(async () => {
-						if (file) {
-							await this.app.fileManager.trashFile(file);
-						}
-					})
-			);
+		if (!targetTag && targetItems && targetItems.length > 0) {
+			const clicked = targetItems[0];
+
+			if (isMulti) {
+				const count = sel.size;
+				menu.addItem((item) =>
+					item
+						.setTitle(`Delete ${count} files`)
+						.setIcon("trash")
+						.setWarning(true)
+						.onClick(async () => {
+							if (!confirm(`Delete ${count} files? This cannot be undone.`)) return;
+							for (const path of sel) {
+								const f = this.app.vault.getAbstractFileByPath(path);
+								if (f) await this.app.fileManager.trashFile(f);
+							}
+							selectedItems.set(new Set());
+						})
+				);
+			} else {
+				selectedItems.set(new Set());
+				const path = clicked.path;
+				const file = this.app.vault.getAbstractFileByPath(path);
+				this.app.workspace.trigger("file-menu", menu, file, "file-explorer");
+				menu.addSeparator();
+				menu.addItem((item) =>
+					item
+						.setTitle("Open in new tab")
+						.setSection("open")
+						.setIcon("lucide-file-plus")
+						.onClick(async () => {
+							await this.app.workspace.openLinkText(path, path, "tab");
+						})
+				);
+				menu.addItem((item) =>
+					item
+						.setTitle("Open to the right")
+						.setSection("open")
+						.setIcon("lucide-separator-vertical")
+						.onClick(async () => {
+							await this.app.workspace.openLinkText(path, path, "split");
+						})
+				);
+				menu.addSeparator();
+				menu.addItem((item) =>
+					item
+						.setTitle("Delete")
+						.setIcon("trash")
+						.setWarning(true)
+						.onClick(async () => {
+							if (file) await this.app.fileManager.trashFile(file);
+						})
+				);
+			}
 		}
 		if ("screenX" in evt) {
 			menu.showAtPosition({ x: evt.pageX, y: evt.pageY });

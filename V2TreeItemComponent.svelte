@@ -2,7 +2,8 @@
     import OnDemandRender from "OnDemandRender.svelte";
 
     import type { TagFolderSettings, ViewItem } from "types";
-    import { currentFile, pluginInstance, tagFolderSetting } from "./store";
+    import { currentFile, pluginInstance, tagFolderSetting, selectedItems, lastSelectedPath } from "./store";
+    import { get } from "svelte/store";
 
     interface Props {
         // Display props
@@ -39,6 +40,7 @@
 
     // To highlighting
     let isActive = $derived(item.path === _currentActiveFilePath);
+    let isSelected = $derived($selectedItems.has(item.path));
 
     let isItemVisible = $state(false);
 
@@ -64,10 +66,47 @@
         <div
             class="tree-item-self is-clickable nav-file-title"
             class:is-active={isActive}
+            class:is-selected={isSelected}
             {draggable}
             data-path={item.path}
             ondragstart={dragStartFile}
-            onclick={(evt) => openFile(item.path, evt.metaKey || evt.ctrlKey)}
+            onclick={(evt) => {
+                if (evt.shiftKey) {
+                    evt.preventDefault();
+                    const anchor = get(lastSelectedPath);
+                    const allEls = Array.from(
+                        document.querySelectorAll<HTMLElement>(
+                            '[data-type="tag-explorer-view"] .nav-file-title[data-path]'
+                        )
+                    );
+                    const anchorIdx = allEls.findIndex(el => el.dataset.path === anchor);
+                    const targetIdx = allEls.findIndex(el => el.dataset.path === item.path);
+                    const [start, end] = anchorIdx <= targetIdx
+                        ? [anchorIdx, targetIdx]
+                        : [targetIdx, anchorIdx];
+                    const rangePaths = allEls
+                        .slice(start < 0 ? targetIdx : start, end + 1)
+                        .map(el => el.dataset.path!);
+                    selectedItems.update((s) => {
+                        const next = new Set(s);
+                        rangePaths.forEach(p => next.add(p));
+                        return next;
+                    });
+                } else if (evt.metaKey || evt.ctrlKey) {
+                    evt.preventDefault();
+                    lastSelectedPath.set(item.path);
+                    selectedItems.update((s) => {
+                        const next = new Set(s);
+                        if (next.has(item.path)) next.delete(item.path);
+                        else next.add(item.path);
+                        return next;
+                    });
+                } else {
+                    lastSelectedPath.set(item.path);
+                    selectedItems.set(new Set());
+                    openFile(item.path, false);
+                }
+            }}
             onmouseover={(e) => {
                 handleMouseover(e, item.path);
             }}
