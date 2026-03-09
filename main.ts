@@ -596,7 +596,9 @@ export default class TagFolderPlugin extends Plugin {
 				return !ignoreTags.some(
 					(ignore) => ignore !== "" && (
 						tagLC === ignore ||
-						tagLC.startsWith(ignore + "/")
+						tagLC.startsWith(ignore + "/") ||
+						tagLC.endsWith("/" + ignore) ||
+						tagLC.includes("/" + ignore + "/")
 					)
 				);
 			});
