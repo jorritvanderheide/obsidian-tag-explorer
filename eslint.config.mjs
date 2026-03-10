@@ -1,3 +1,4 @@
+import tsPlugin from "@typescript-eslint/eslint-plugin";
 import tsParser from "@typescript-eslint/parser";
 import obsidianmd from "eslint-plugin-obsidianmd";
 import { defineConfig } from "eslint/config";
@@ -5,10 +6,15 @@ import globals from "globals";
 
 export default defineConfig([
 	{
-		ignores: ["**/node_modules/**", "**/dist/**", "**/build/**", "**/*.config.*", "*.js"],
+		ignores: ["**/node_modules/**", "**/dist/**", "**/build/**", "**/*.config.*", "*.js", "package.json"],
 	},
 	...obsidianmd.configs.recommended,
 	{
+		files: ["**/*.ts"],
+		plugins: {
+			"@typescript-eslint": tsPlugin,
+			"obsidianmd": obsidianmd,
+		},
 		languageOptions: {
 			parser: tsParser,
 			parserOptions: {
