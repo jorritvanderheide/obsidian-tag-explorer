@@ -199,8 +199,6 @@ export abstract class TagFolderViewBase extends ItemView {
 						.setIcon("trash")
 						.setWarning(true)
 						.onClick(async () => {
-							// -next-line no-alert
-							if (!confirm(`Delete ${count} files? This cannot be undone.`)) return;
 							for (const path of sel) {
 								const f = this.app.vault.getAbstractFileByPath(path);
 								if (f) await this.app.fileManager.trashFile(f);
