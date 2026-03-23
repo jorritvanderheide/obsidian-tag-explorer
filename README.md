@@ -1,6 +1,6 @@
 # Tag Explorer
 
-<img src="https://img.shields.io/liberapay/receives/BW20.svg?logo=liberapay">
+[![Donate](https://liberapay.com/assets/widgets/donate.svg)](https://liberapay.com/BW20)
 
 > **A fork of [TagFolder](https://github.com/vrtmrz/obsidian-tagfolder) by vorotamoroz.**
 
