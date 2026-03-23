@@ -1,5 +1,7 @@
 # Tag Explorer
 
+<img src="https://img.shields.io/liberapay/receives/BW20.svg?logo=liberapay">
+
 > **A fork of [TagFolder](https://github.com/vrtmrz/obsidian-tagfolder) by vorotamoroz.**
 
 Navigate your vault through a tag-generated folder tree. Each tag namespace (`domain/`, `source/`, `status/`, …) becomes an independent folder tree. A note tagged `#domain/coding` and `#source/book` appears under *both* `domain/coding` and `source/book` simultaneously — the same file in two places at once, like a symlink.
