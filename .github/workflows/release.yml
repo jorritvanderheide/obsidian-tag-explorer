@@ -2,7 +2,7 @@ name: Release Obsidian Plugin
 
 permissions:
   id-token: write
-  contents: read
+  contents: write
   attestations: write
 
 on:
