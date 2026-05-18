@@ -34,13 +34,11 @@ jobs:
       run: |
         mkdir ${{ github.event.repository.name }}
         cp main.js manifest.json styles.css README.md ${{ github.event.repository.name }}
-        zip -r ${{ github.event.repository.name }}-${{ steps.version.outputs.tag }}.zip ${{ github.event.repository.name }}
     # Create a GitHub Release and upload the zip file as an asset
     - name: Create Release and Upload Assets
       uses: softprops/action-gh-release@v2
       with:
         files: |
-          ${{ github.event.repository.name }}-${{ steps.version.outputs.tag }}.zip
           main.js
           manifest.json
           styles.css
